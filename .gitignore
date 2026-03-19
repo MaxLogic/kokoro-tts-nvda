@@ -1,0 +1,17 @@
+*.pyc
+__pycache__/
+dist/
+.sconsign.dblite
+.pytest_cache/
+.helper-venv/
+
+# Standalone runtime assets can be bootstrapped locally when needed.
+addon/synthDrivers/maxlogic_kokoro/deps/*
+addon/synthDrivers/maxlogic_kokoro/espeak/*
+addon/synthDrivers/maxlogic_kokoro/model/*
+addon/synthDrivers/maxlogic_kokoro/voices/*
+
+!addon/synthDrivers/maxlogic_kokoro/deps/.gitkeep
+!addon/synthDrivers/maxlogic_kokoro/espeak/README.md
+!addon/synthDrivers/maxlogic_kokoro/model/README.md
+!addon/synthDrivers/maxlogic_kokoro/voices/README.md

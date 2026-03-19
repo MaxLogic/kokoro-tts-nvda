@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>MaxLogic Kokoro TTS</title>
+</head>
+<body>
+  <h1>MaxLogic Kokoro TTS</h1>
+  <p>MaxLogic Kokoro TTS is a separate Kokoro-based synthesizer for NVDA.</p>
+  <p>This development install uses a distinct internal identity from the existing <code>kokoroTTS</code> add-on so both can coexist.</p>
+  <ul>
+    <li>The synth prefers CUDA when the helper environment exposes <code>CUDAExecutionProvider</code>.</li>
+    <li>If CUDA is not available, the helper can be provisioned for DirectML or CPU.</li>
+    <li>On 32-bit NVDA, GPU inference runs through the optional 64-bit helper process.</li>
+  </ul>
+</body>
+</html>
