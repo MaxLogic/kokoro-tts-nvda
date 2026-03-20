@@ -18,5 +18,6 @@
 ### Changed
 - the development installer now links `globalPlugins` so live NVDA installs can load the voice manager during development
 - the voice manager now logs the selected catalog page, including the dedicated `Official v1.1-zh` source view
+- broader `zf_*` rollout from the v1.1-zh release is deferred until the packaged phonemizer path can produce usable Chinese tokens
 - speech caching is now governed by a shared user-data policy file and helper-side cache hits are logged explicitly for repeated short utterances
 - medium and long paragraph chunks now use a short-lived helper hot cache, and playback chunking uses smaller follow-up chunks to reduce stale-speech delay during paragraph navigation

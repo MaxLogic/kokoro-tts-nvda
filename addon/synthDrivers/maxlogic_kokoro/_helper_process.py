@@ -372,11 +372,20 @@ def main():
 					continue
 				_send({"ok": False, "id": request_id, "error": "Unknown operation: %s" % op})
 			except Exception as error:
-				LOGGER.exception("Helper request failed.", exc_info=True)
+				context_request = request if "request" in locals() and isinstance(request, dict) else {}
+				LOGGER.exception(
+					"Helper request failed. op=%s voice=%s voicePath=%s lang=%s chars=%s",
+					context_request.get("op"),
+					context_request.get("voice"),
+					context_request.get("voice_path"),
+					context_request.get("language"),
+					len(context_request.get("text", "")),
+					exc_info=True,
+				)
 				_send(
 					{
 						"ok": False,
-						"id": request.get("id") if "request" in locals() else None,
+						"id": context_request.get("id"),
 						"error": str(error),
 						"traceback": traceback.format_exc(),
 					}

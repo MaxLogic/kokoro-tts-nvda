@@ -94,6 +94,8 @@ Current `Official v1.1-zh` rollout:
 
 These voices are available for preview and download now as the first supported subset of the newer v1.1-zh release.
 
+The broader Chinese `zf_*` voice set is not exposed yet. Current validation shows that the packaged phonemizer path does not produce usable tokens for Chinese text, so wider v1.1-zh rollout is deferred until Chinese phonemizer support is added.
+
 ## Voice storage
 
 Downloaded and user-installed voices are stored here:
@@ -147,6 +149,7 @@ See:
 - Community voices are curated and mirrored; the list is intentionally smaller than the full internet.
 - GPU acceleration depends on the local NVDA/Python environment and may not be available out of the box on every system.
 - Non-English support depends on available Kokoro voices and phonemizer quality.
+- The broader Chinese `zf_*` voices from the v1.1-zh release are currently deferred because the packaged phonemizer path does not yet tokenize Chinese text correctly.
 - Very rapid movement between large paragraphs can still be limited by the time required to finish an already-running neural inference request.
 
 ## Add-on identity

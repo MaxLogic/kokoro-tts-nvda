@@ -1,9 +1,9 @@
 # Tasks
-Next task ID: T-010
+Next task ID: T-011
 
 ## Summary
-Open tasks: 5 (In Progress: 0, Next Today: 2, Next This Week: 3, Next Later: 0, Blocked: 0)
-Done tasks: 4
+Open tasks: 5 (In Progress: 0, Next Today: 2, Next This Week: 2, Next Later: 1, Blocked: 0)
+Done tasks: 5
 
 ## In Progress
 
@@ -51,23 +51,6 @@ Notes: Keep the initial local install format simple; archive support can wrap on
 
 ## Next – This Week
 
-### T-009 [CLI] Validate runtime compatibility for broader v1.1-zh adoption
-Outcome:
-- the project has a documented yes/no compatibility result for using v1.1-zh voices with the current runtime and helper path
-- if broader v1.1-zh support needs a separate model asset or model-selection path, that requirement is captured explicitly with the affected runtime surfaces
-- the decision for exposing or deferring the `zf_*` voice set is recorded with evidence from preview/install/runtime tests
-Proof:
-- Run: `python -m py_compile addon\synthDrivers\maxlogic_kokoro\_engine.py addon\synthDrivers\maxlogic_kokoro\_helper_process.py addon\synthDrivers\maxlogic_kokoro\_helper_client.py`
-  Expect: exit=0
-- Run: `Get-Content "C:\Users\pawel\AppData\Roaming\nvda\maxlogicKokoroTTS\logs\helper.log" -Tail 150`
-  Expect: log contains explicit validation attempts for representative v1.1-zh voices and shows whether synthesis succeeded or failed with the current runtime
-- Run: `Get-Content CHANGELOG.md`
-  Expect: after the work lands, changelog or linked notes record whether wider v1.1-zh rollout is enabled or deferred
-Touches: addon/synthDrivers/maxlogic_kokoro/_engine.py, addon/synthDrivers/maxlogic_kokoro/_helper_process.py, addon/synthDrivers/maxlogic_kokoro/_helper_client.py, CHANGELOG.md
-Deps: T-008
-Verify: cli-proof, manual
-Notes: This task is the gate for exposing the full Chinese `zf_*` set and any future multi-model runtime path.
-
 ### T-003 [CLI] Add curated online voice catalog and verified downloader
 Outcome:
 - the add-on can read a MaxLogic-managed voice catalog JSON describing downloadable Kokoro voices
@@ -113,9 +96,42 @@ Notes: Model the UI structure after Sonata’s voice manager, but keep the Kokor
 
 ## Next – Later
 
+### T-010 [CLI] Add Chinese phonemizer support for v1.1-zh `zf_*` voices
+Outcome:
+- the packaged phonemizer/runtime path produces usable tokens for representative Chinese text when using a `zf_*` v1.1-zh voice
+- the voice manager can safely expose the broader `zf_*` set only after preview/download/install proof succeeds on the current helper/runtime path
+- user-facing docs explain the resulting Chinese voice support level without relying on manual caveats
+Proof:
+- Run: `python -m py_compile addon\synthDrivers\maxlogic_kokoro\_phonemizer.py addon\synthDrivers\maxlogic_kokoro\_engine.py addon\synthDrivers\maxlogic_kokoro\_helper_process.py`
+  Expect: exit=0
+- Run: `Get-Content "C:\Users\pawel\AppData\Roaming\nvda\maxlogicKokoroTTS\logs\helper.log" -Tail 150`
+  Expect: helper log shows a representative `zf_*` preview or synthesis request succeeding for Chinese text instead of failing with `Phonemizer produced no usable tokens`
+- Run: `Get-Content CHANGELOG.md`
+  Expect: changelog records whether the broader `zf_*` set is now enabled and what phonemizer/runtime path made it possible
+Touches: addon/synthDrivers/maxlogic_kokoro/_phonemizer.py, addon/synthDrivers/maxlogic_kokoro/_engine.py, addon/synthDrivers/maxlogic_kokoro/_helper_process.py, addon/globalPlugins/maxlogic_kokoro_manager/sample_texts.json, CHANGELOG.md
+Verify: cli-proof, manual
+Notes: Follow-up from T-009. Current validation shows the packaged phonemizer path returns no usable tokens for representative Chinese text, so the broader `zf_*` rollout remains deferred.
+
 ## Blocked
 
 ## Done
+
+### T-009 [CLI] Validate runtime compatibility for broader v1.1-zh adoption
+Outcome:
+- the project has a documented yes/no compatibility result for using v1.1-zh voices with the current runtime and helper path
+- if broader v1.1-zh support needs a separate model asset or model-selection path, that requirement is captured explicitly with the affected runtime surfaces
+- the decision for exposing or deferring the `zf_*` voice set is recorded with evidence from preview/install/runtime tests
+Proof:
+- Run: `python -m py_compile addon\synthDrivers\maxlogic_kokoro\_engine.py addon\synthDrivers\maxlogic_kokoro\_helper_process.py addon\synthDrivers\maxlogic_kokoro\_helper_client.py`
+  Expect: exit=0
+- Run: `Get-Content "C:\Users\pawel\AppData\Roaming\nvda\maxlogicKokoroTTS\logs\helper.log" -Tail 150`
+  Expect: log contains explicit validation attempts for representative v1.1-zh voices and shows whether synthesis succeeded or failed with the current runtime
+- Run: `Get-Content CHANGELOG.md`
+  Expect: after the work lands, changelog or linked notes record whether wider v1.1-zh rollout is enabled or deferred
+Touches: addon/synthDrivers/maxlogic_kokoro/_engine.py, addon/synthDrivers/maxlogic_kokoro/_helper_process.py, addon/synthDrivers/maxlogic_kokoro/_helper_client.py, CHANGELOG.md
+Deps: T-008
+Verify: cli-proof, manual
+Notes: Validation result: wider `zf_*` rollout is deferred for now. Representative helper preview for Chinese text failed with `Phonemizer produced no usable tokens`, so current broader support is blocked by the packaged phonemizer/runtime path rather than by model selection.
 
 ### T-006 [CLI] Add official Kokoro v1.1-zh catalog support
 Outcome:

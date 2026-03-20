@@ -92,6 +92,7 @@
 <li><code>bf_vale</code></li>
 </ul>
 <p>These voices are available for preview and download now as the first supported subset of the newer v1.1-zh release.</p>
+<p>The broader Chinese <code>zf_*</code> voice set is not exposed yet. Current validation shows that the packaged phonemizer path does not produce usable tokens for Chinese text, so wider v1.1-zh rollout is deferred until Chinese phonemizer support is added.</p>
 <h2>Voice storage</h2>
 <p>Downloaded and user-installed voices are stored here:</p>
 <ul>
@@ -138,6 +139,7 @@
 <li>Community voices are curated and mirrored; the list is intentionally smaller than the full internet.</li>
 <li>GPU acceleration depends on the local NVDA/Python environment and may not be available out of the box on every system.</li>
 <li>Non-English support depends on available Kokoro voices and phonemizer quality.</li>
+<li>The broader Chinese <code>zf_*</code> voices from the v1.1-zh release are currently deferred because the packaged phonemizer path does not yet tokenize Chinese text correctly.</li>
 <li>Very rapid movement between large paragraphs can still be limited by the time required to finish an already-running neural inference request.</li>
 </ul>
 <h2>Add-on identity</h2>
