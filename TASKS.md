@@ -1,9 +1,9 @@
 # Tasks
-Next task ID: T-005
+Next task ID: T-006
 
 ## Summary
 Open tasks: 4 (In Progress: 0, Next Today: 2, Next This Week: 2, Next Later: 0, Blocked: 0)
-Done tasks: 0
+Done tasks: 1
 
 ## In Progress
 
@@ -99,3 +99,23 @@ Notes: Model the UI structure after Sonata’s voice manager, but keep the Kokor
 ## Blocked
 
 ## Done
+
+### T-005 [UI] Add speech cache settings and maintenance controls
+Outcome:
+- the voice manager has a dedicated `Speech Cache` tab for cache configuration and maintenance
+- users can configure cache enablement, maximum cache size in MB, and which utterance lengths are eligible for caching through a simple mode-based UI
+- the tab shows current cache location, size, and entry count, and supports clear + compact actions
+- cache policy persists under the add-on user-data directory and is applied by both the NVDA-side cache and the helper-side cache without reinstalling the add-on
+- logs make cache activation and helper cache hits visible during proof
+Proof:
+- Run: `python -m py_compile addon\globalPlugins\maxlogic_kokoro_manager\*.py addon\synthDrivers\maxlogic_kokoro\*.py`
+  Expect: exit=0
+- Run: `Get-Content "C:\Users\pawel\AppData\Roaming\nvda\maxlogicKokoroTTS\logs\helper.log" -Tail 120`
+  Expect: after repeating a short utterance, helper log shows cache startup and at least one helper cache hit
+- Run: `@'`nimport os, sqlite3`npath = r"C:\Users\pawel\AppData\Roaming\nvda\maxlogicKokoroTTS\cache\speech-cache.sqlite3"`nprint(os.path.exists(path))`nconn = sqlite3.connect(path)`nprint(conn.execute("select count(*) from speech_cache").fetchone()[0])`nconn.close()`n'@ | python -`
+  Expect: output shows the cache database exists and contains rows after speech is cached
+- Run: `Get-Content "C:\Users\pawel\AppData\Local\Temp\nvda.log" -Tail 150`
+  Expect: opening the manager and changing speech-cache settings logs cache activation and successful settings persistence
+Touches: addon/globalPlugins/maxlogic_kokoro_manager/voice_manager.py, addon/globalPlugins/maxlogic_kokoro_manager/service.py, addon/synthDrivers/maxlogic_kokoro/__init__.py, addon/synthDrivers/maxlogic_kokoro/_helper_process.py, addon/synthDrivers/maxlogic_kokoro/_speech_cache.py
+Verify: cli-proof, manual, visual
+Notes: User-facing control should expose cache size only, not an entry-count limit. A hidden defensive row cap is intentionally omitted; eviction is size-driven.
