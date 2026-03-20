@@ -7,6 +7,7 @@ $ErrorActionPreference = "Stop"
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
 $sourceAddonRoot = Join-Path $repoRoot "addon"
+$sourceGlobalPlugins = Join-Path $sourceAddonRoot "globalPlugins"
 $sourceSynthDrivers = Join-Path $sourceAddonRoot "synthDrivers"
 $sourceDoc = Join-Path $sourceAddonRoot "doc"
 $sourceInstallTasks = Join-Path $sourceAddonRoot "installTasks.py"
@@ -38,6 +39,9 @@ Set-Content -Path (Join-Path $TargetRoot "manifest.ini") -Value $manifest -Encod
 Copy-Item $sourceInstallTasks (Join-Path $TargetRoot "installTasks.py") -Force
 
 New-Item -ItemType Junction -Path (Join-Path $TargetRoot "synthDrivers") -Target $sourceSynthDrivers | Out-Null
+if (Test-Path $sourceGlobalPlugins) {
+    New-Item -ItemType Junction -Path (Join-Path $TargetRoot "globalPlugins") -Target $sourceGlobalPlugins | Out-Null
+}
 New-Item -ItemType Junction -Path (Join-Path $TargetRoot "doc") -Target $sourceDoc | Out-Null
 
 if (Test-Path $sourceHelperVenv) {
@@ -46,6 +50,9 @@ if (Test-Path $sourceHelperVenv) {
 
 Write-Host "Development install created at $TargetRoot"
 Write-Host "synthDrivers -> $sourceSynthDrivers"
+if (Test-Path $sourceGlobalPlugins) {
+    Write-Host "globalPlugins -> $sourceGlobalPlugins"
+}
 Write-Host "doc -> $sourceDoc"
 if (Test-Path $sourceHelperVenv) {
     Write-Host ".helper-venv -> $sourceHelperVenv"

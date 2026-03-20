@@ -23,6 +23,7 @@ addon_info = {
 
 pythonSources = [
 	"addon/installTasks.py",
+	"addon/globalPlugins/*/*.py",
 	"addon/synthDrivers/*/*.py",
 ]
 
