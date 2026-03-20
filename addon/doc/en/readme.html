@@ -1,17 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>MaxLogic Kokoro TTS</title>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" type="text/css" href="../style.css" media="screen">
+<title>MaxLogic Kokoro TTS 0.1.0</title>
 </head>
 <body>
-  <h1>MaxLogic Kokoro TTS</h1>
-  <p>MaxLogic Kokoro TTS is a separate Kokoro-based synthesizer for NVDA.</p>
-  <p>This development install uses a distinct internal identity from the existing <code>kokoroTTS</code> add-on so both can coexist.</p>
-  <ul>
-    <li>The synth prefers CUDA when the helper environment exposes <code>CUDAExecutionProvider</code>.</li>
-    <li>If CUDA is not available, the helper can be provisioned for DirectML or CPU.</li>
-    <li>On 32-bit NVDA, GPU inference runs through the optional 64-bit helper process.</li>
-  </ul>
+<h1>MaxLogic Kokoro TTS for NVDA</h1>
+<p>MaxLogic Kokoro TTS is an NVDA add-on that adds a separate Kokoro speech synthesizer under the name <code>MaxLogic Kokoro TTS</code>.</p>
+<p>It uses its own add-on ID and synth driver name so it can coexist with the older <code>kokoroTTS</code> add-on without conflicts.</p>
+<h2>Current status</h2>
+<p>This is an early public beta intended for testing and feedback.</p>
+<h2>Features</h2>
+<ul>
+<li>Separate NVDA synth: <code>MaxLogic Kokoro TTS</code></li>
+<li>Built-in voice manager available from the NVDA menu</li>
+<li>Official voice catalog with filtering by name, gender, and language</li>
+<li>Community voice catalog for curated experimental voices</li>
+<li>Bulk download and install of selected voices</li>
+<li>Local voice install from <code>.bin</code>, <code>.json</code>, <code>.npy</code>, or <code>.zip</code></li>
+<li>Sample playback before installing a voice</li>
+<li>User-downloaded voices stored outside the add-on so they survive reinstalls</li>
+<li>Speech Cache tab with cache settings, live stats, clear, and compact actions</li>
+<li>Built-in support for persistent short-speech caching and short-lived paragraph hot caching</li>
+<li>Smarter chunking for longer text, with preference for sentence and clause boundaries</li>
+<li>Improved repeated-navigation responsiveness for short prompts and paragraph hopping</li>
+</ul>
+<h2>Why this add-on feels faster</h2>
+<p>MaxLogic Kokoro TTS includes several responsiveness optimizations beyond basic Kokoro integration:</p>
+<ul>
+<li>Helper-backed GPU inference when a compatible 64-bit helper environment is available</li>
+<li>Voice prewarming to reduce cold-start delay</li>
+<li>Persistent cache for repeated short utterances such as navigation prompts and command feedback</li>
+<li>Hot in-memory cache for longer paragraph chunks when moving back and forth through text</li>
+<li>Prefetching of upcoming chunks while current audio is already playing</li>
+<li>Safer chunk splitting for long text so large passages are less likely to fail</li>
+</ul>
+<h2>What is included in this package</h2>
+<ul>
+<li>Kokoro model files</li>
+<li>eSpeak-NG runtime required by the phonemizer</li>
+<li>A small built-in starter voice set</li>
+<li>A bundled curated community mirror used by the Community tab</li>
+<li>CPU runtime dependencies for immediate use after installation</li>
+</ul>
+<h2>GPU support</h2>
+<p>The packaged add-on is ready to use after installation with the bundled CPU runtime.</p>
+<p>CUDA and other accelerated modes are available as advanced setups, but on many NVDA installations they require an external 64-bit helper environment. If no helper is configured, the add-on falls back to the bundled in-process runtime.</p>
+<p>When helper mode is active, the add-on can use:</p>
+<ul>
+<li><code>CUDAExecutionProvider</code> for NVIDIA GPU acceleration</li>
+<li><code>DmlExecutionProvider</code> on supported DirectML setups</li>
+<li>CPU fallback when no accelerator is available</li>
+</ul>
+<h2>Installing the add-on</h2>
+<ol>
+<li>Open the <code>.nvda-addon</code> package file.</li>
+<li>Allow NVDA to install the add-on.</li>
+<li>Restart NVDA when prompted.</li>
+<li>Open NVDA Settings and select <code>MaxLogic Kokoro TTS</code> as the synthesizer.</li>
+</ol>
+<h2>Managing voices</h2>
+<p>Open:</p>
+<ul>
+<li><code>NVDA menu -&gt; MaxLogic Kokoro voice manager...</code></li>
+</ul>
+<p>Tabs:</p>
+<ul>
+<li><code>Installed</code>: user-installed voices and built-in/fallback voices</li>
+<li><code>Official</code>: curated official Kokoro voices</li>
+<li><code>Community</code>: curated experimental community voices</li>
+<li><code>Speech Cache</code>: cache settings, persistent cache stats, and hot cache stats</li>
+</ul>
+<p>Available actions:</p>
+<ul>
+<li>filter the online lists</li>
+<li>play a sample for the focused voice</li>
+<li>select visible voices</li>
+<li>clear visible selection</li>
+<li>download selected voices</li>
+<li>install a local voice file</li>
+<li>remove a user-installed voice</li>
+<li>change cache policy for short or medium speech</li>
+<li>clear or compact the cache</li>
+</ul>
+<h2>Voice storage</h2>
+<p>Downloaded and user-installed voices are stored here:</p>
+<ul>
+<li><code>%APPDATA%\nvda\maxlogicKokoroTTS\voices</code></li>
+</ul>
+<p>This keeps your voice library separate from the add-on package itself.</p>
+<p>Speech cache and logs are also stored outside the add-on package:</p>
+<ul>
+<li>Cache settings: <code>%APPDATA%\nvda\maxlogicKokoroTTS\speech-cache-settings.json</code></li>
+<li>Persistent cache database: <code>%APPDATA%\nvda\maxlogicKokoroTTS\cache\speech-cache.sqlite3</code></li>
+</ul>
+<h2>Logging</h2>
+<p>Useful logs:</p>
+<ul>
+<li>NVDA log: <code>C:\Users\pawel\AppData\Local\Temp\nvda.log</code></li>
+<li>MaxLogic helper log: <code>%APPDATA%\nvda\maxlogicKokoroTTS\logs\helper.log</code></li>
+</ul>
+<h2>Speech cache</h2>
+<p>The add-on uses two cache layers:</p>
+<ul>
+<li><code>Persistent cache</code>: SQLite-backed cache for repeated short utterances</li>
+<li><code>Hot cache</code>: short-lived helper memory cache for quick paragraph repeats</li>
+</ul>
+<p>The Speech Cache tab shows both layers separately so it is easier to understand what the add-on is currently using.</p>
+<h2>Known limitations</h2>
+<ul>
+<li>Community voices are curated and mirrored; the list is intentionally smaller than the full internet.</li>
+<li>GPU acceleration depends on the local NVDA/Python environment and may not be available out of the box on every system.</li>
+<li>Non-English support depends on available Kokoro voices and phonemizer quality.</li>
+<li>Very rapid movement between large paragraphs can still be limited by the time required to finish an already-running neural inference request.</li>
+</ul>
+<h2>Add-on identity</h2>
+<ul>
+<li>Add-on ID: <code>maxlogicKokoroTTS</code></li>
+<li>Synth driver: <code>maxlogic_kokoro</code></li>
+<li>Display name: <code>MaxLogic Kokoro TTS</code></li>
+</ul>
 </body>
 </html>

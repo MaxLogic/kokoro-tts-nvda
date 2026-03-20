@@ -41,9 +41,10 @@ except Exception as error:
 	_ENGINE_IMPORT_ERROR = error
 
 try:
-	from ._helper_client import HelperEngineClient
+	from ._helper_client import HelperEngineClient, HelperRequestInterrupted
 except Exception:
 	HelperEngineClient = None
+	HelperRequestInterrupted = None
 
 try:
 	from ._speech_cache import SpeechCache
@@ -58,10 +59,10 @@ addonHandler.initTranslation()
 class SynthDriver(synthDriverHandler.SynthDriver):
 	name = "maxlogic_kokoro"
 	description = "MaxLogic Kokoro TTS"
-	firstChunkTargetChars = 72
-	firstChunkMaxChars = 120
-	targetChunkChars = 200
-	maxChunkChars = 280
+	firstChunkTargetChars = 40
+	firstChunkMaxChars = 72
+	targetChunkChars = 120
+	maxChunkChars = 170
 	prefetchQueueSize = 2
 	supportedSettings = (
 		synthDriverHandler.SynthDriver.VoiceSetting(),
@@ -216,6 +217,11 @@ class SynthDriver(synthDriverHandler.SynthDriver):
 
 	def cancel(self):
 		self._generation += 1
+		if hasattr(self._engine, "interrupt"):
+			try:
+				self._engine.interrupt(reason="cancel generation=%s" % self._generation, min_active_ms=1500)
+			except Exception:
+				log.debug("MaxLogic Kokoro helper interrupt failed", exc_info=True)
 		while True:
 			try:
 				self._queue.get_nowait()
@@ -323,7 +329,7 @@ class SynthDriver(synthDriverHandler.SynthDriver):
 		stop_event = threading.Event()
 		producer = threading.Thread(
 			target=self._produce_chunk_audio,
-			args=(audio_queue, stop_event, chunks, speed, task["voice"], volume, task["language"]),
+			args=(audio_queue, stop_event, chunks, speed, task["voice"], volume, task["language"], generation),
 			name="MaxLogicKokoroPrefetch",
 			daemon=True,
 		)
@@ -359,7 +365,7 @@ class SynthDriver(synthDriverHandler.SynthDriver):
 			)
 		self._player.idle()
 
-	def _produce_chunk_audio(self, audio_queue, stop_event, chunks, speed, voice, volume, language):
+	def _produce_chunk_audio(self, audio_queue, stop_event, chunks, speed, voice, volume, language, generation):
 		try:
 			for item in self._synthesize_chunks_with_fallback(
 				chunks,
@@ -367,6 +373,7 @@ class SynthDriver(synthDriverHandler.SynthDriver):
 				voice=voice,
 				volume=volume,
 				language=language,
+				generation=generation,
 				stop_event=stop_event,
 			):
 				if stop_event.is_set():
@@ -377,7 +384,9 @@ class SynthDriver(synthDriverHandler.SynthDriver):
 						break
 					except queue.Full:
 						continue
-		except Exception:
+		except Exception as error:
+			if HelperRequestInterrupted is not None and isinstance(error, HelperRequestInterrupted):
+				return
 			error_item = {"error": traceback.format_exc()}
 			while not stop_event.is_set():
 				try:
@@ -407,7 +416,7 @@ class SynthDriver(synthDriverHandler.SynthDriver):
 				remaining,
 				target_chars=target,
 				max_chars=max_chars,
-				min_chars=48 if first else 72,
+				min_chars=24 if first else 72,
 			)
 			chunks.append(chunk)
 			first = False
@@ -462,7 +471,7 @@ class SynthDriver(synthDriverHandler.SynthDriver):
 		candidates.sort()
 		return candidates[0][3]
 
-	def _synthesize_chunks_with_fallback(self, chunks, speed, voice, volume, language, stop_event=None):
+	def _synthesize_chunks_with_fallback(self, chunks, speed, voice, volume, language, generation=None, stop_event=None):
 		for chunk in chunks:
 			if stop_event is not None and stop_event.is_set():
 				return
@@ -472,12 +481,13 @@ class SynthDriver(synthDriverHandler.SynthDriver):
 				voice=voice,
 				volume=volume,
 				language=language,
+				generation=generation,
 				depth=0,
 				stop_event=stop_event,
 			):
 				yield item
 
-	def _synthesize_chunk_with_fallback(self, text, speed, voice, volume, language, depth, stop_event=None):
+	def _synthesize_chunk_with_fallback(self, text, speed, voice, volume, language, generation, depth, stop_event=None):
 		if stop_event is not None and stop_event.is_set():
 			return
 		cached_audio = self._get_cached_audio(text, voice, speed, volume, language)
@@ -491,6 +501,7 @@ class SynthDriver(synthDriverHandler.SynthDriver):
 				voice=voice,
 				volume=volume,
 				language=language,
+				generation=generation,
 			)
 			audio_bytes = audio.tobytes() if hasattr(audio, "tobytes") else bytes(audio)
 			self._store_cached_audio(text, voice, speed, volume, language, audio_bytes)
@@ -516,6 +527,7 @@ class SynthDriver(synthDriverHandler.SynthDriver):
 					voice=voice,
 					volume=volume,
 					language=language,
+					generation=generation,
 					depth=depth + 1,
 					stop_event=stop_event,
 				):

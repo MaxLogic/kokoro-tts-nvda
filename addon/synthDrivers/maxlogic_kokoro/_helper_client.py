@@ -1,6 +1,7 @@
 import base64
 import json
 import os
+import re
 import subprocess
 import threading
 import time
@@ -13,19 +14,31 @@ except ImportError:
 	from _log import get_helper_log_path
 
 
+class HelperRequestInterrupted(RuntimeError):
+	pass
+
+
 class HelperEngineClient(object):
 	sample_rate = 24000
 
-	def __init__(self, package_root, logger):
+	def __init__(self, package_root, logger, helper_mode="synth", skip_prewarm=False):
 		self.package_root = package_root
 		self.logger = logger
+		self.helper_mode = helper_mode
 		self._request_id = 0
+		self._io_lock = threading.RLock()
+		self._state_lock = threading.Lock()
 		self._voice = None
 		self._voices = []
 		self._providers = []
 		self._process = None
 		self._stderr_thread = None
-		self._start()
+		self._mode = helper_mode
+		self._request_active = False
+		self._request_started_at = None
+		self._request_interrupted = False
+		self._skip_next_prewarm = bool(skip_prewarm)
+		self._start(skip_prewarm=bool(skip_prewarm))
 
 	@classmethod
 	def should_try(cls, package_root):
@@ -67,7 +80,20 @@ class HelperEngineClient(object):
 		candidates.append(["py", "-3.11", helper_script])
 		return candidates
 
-	def _start(self):
+	def _build_launch_env(self, skip_prewarm=False):
+		env = os.environ.copy()
+		env["MAXLOGIC_KOKORO_HELPER_MODE"] = self.helper_mode
+		if skip_prewarm:
+			env["MAXLOGIC_KOKORO_SKIP_PREWARM"] = "1"
+		else:
+			env.pop("MAXLOGIC_KOKORO_SKIP_PREWARM", None)
+		return env
+
+	def _start(self, skip_prewarm=False):
+		with self._io_lock:
+			self._start_locked(skip_prewarm=skip_prewarm)
+
+	def _start_locked(self, skip_prewarm=False):
 		last_error = None
 		for command in self._candidate_commands(self.package_root):
 			try:
@@ -82,6 +108,7 @@ class HelperEngineClient(object):
 					errors="replace",
 					bufsize=1,
 					creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+					env=self._build_launch_env(skip_prewarm=skip_prewarm),
 				)
 				self._stderr_thread = threading.Thread(target=self._drain_stderr, daemon=True)
 				self._stderr_thread.start()
@@ -108,6 +135,18 @@ class HelperEngineClient(object):
 				self.close()
 		raise RuntimeError("Unable to start MaxLogic Kokoro helper: %s" % last_error)
 
+	def _consume_skip_prewarm_locked(self):
+		with self._state_lock:
+			value = self._skip_next_prewarm
+			self._skip_next_prewarm = False
+			return value
+
+	def _ensure_running_locked(self):
+		if self._process is not None and self._process.poll() is None:
+			return
+		self._process = None
+		self._start_locked(skip_prewarm=self._consume_skip_prewarm_locked())
+
 	def _drain_stderr(self):
 		if self._process is None or self._process.stderr is None:
 			return
@@ -117,33 +156,58 @@ class HelperEngineClient(object):
 				self.logger.debug("Helper: %s", line)
 
 	def _read_message(self):
-		line = self._process.stdout.readline()
-		if not line:
-			raise RuntimeError("Helper process exited before responding")
-		return json.loads(line)
+		while True:
+			line = self._process.stdout.readline()
+			if not line:
+				raise RuntimeError("Helper process exited before responding")
+			line = line.strip()
+			if not line:
+				continue
+			try:
+				return json.loads(line)
+			except Exception:
+				self.logger.warning("Ignored non-JSON helper stdout line: %r", line[:200])
 
 	def _request(self, payload):
-		self._request_id += 1
-		payload = dict(payload)
-		payload["id"] = self._request_id
-		start_time = time.perf_counter()
-		self._process.stdin.write(json.dumps(payload) + "\n")
-		self._process.stdin.flush()
-		response = self._read_message()
-		if not response.get("ok"):
-			self.logger.warning("Helper request failed. op=%s error=%s", payload.get("op"), response.get("error"))
-			raise RuntimeError(response.get("error", "Unknown helper error"))
-		elapsed_ms = round((time.perf_counter() - start_time) * 1000, 1)
-		if payload.get("op") == "synthesize":
-			audio_b64 = response.get("audio_b64", "")
-			self.logger.info(
-				"Helper synthesize response. chars=%s voice=%s elapsedMs=%s audioBytes~=%s",
-				len(payload.get("text", "")),
-				payload.get("voice") or self._voice,
-				elapsed_ms,
-				int((len(audio_b64) * 3) / 4),
-			)
-		return response
+		with self._io_lock:
+			self._ensure_running_locked()
+			self._request_id += 1
+			payload = dict(payload)
+			payload["id"] = self._request_id
+			start_time = time.perf_counter()
+			with self._state_lock:
+				self._request_active = True
+				self._request_started_at = start_time
+				self._request_interrupted = False
+			try:
+				self._process.stdin.write(json.dumps(payload) + "\n")
+				self._process.stdin.flush()
+				response = self._read_message()
+				if not response.get("ok"):
+					self.logger.warning("Helper request failed. op=%s error=%s", payload.get("op"), response.get("error"))
+					raise RuntimeError(response.get("error", "Unknown helper error"))
+				elapsed_ms = round((time.perf_counter() - start_time) * 1000, 1)
+				if payload.get("op") == "synthesize":
+					audio_b64 = response.get("audio_b64", "")
+					self.logger.info(
+						"Helper synthesize response. chars=%s voice=%s elapsedMs=%s audioBytes~=%s",
+						len(payload.get("text", "")),
+						payload.get("voice") or self._voice,
+						elapsed_ms,
+						int((len(audio_b64) * 3) / 4),
+					)
+				return response
+			except Exception:
+				with self._state_lock:
+					interrupted = self._request_interrupted
+				if interrupted:
+					raise HelperRequestInterrupted("Helper request interrupted")
+				raise
+			finally:
+				with self._state_lock:
+					self._request_active = False
+					self._request_started_at = None
+					self._request_interrupted = False
 
 	def list_voices(self):
 		return list(self._voices)
@@ -156,7 +220,30 @@ class HelperEngineClient(object):
 	def current_voice(self):
 		return self._voice
 
-	def synthesize_to_int16(self, text, speed=0.85, voice=None, volume=1.0, language="en-us"):
+	def reload_voices(self, preferred_voice=None):
+		response = self._request({"op": "reload_voices", "preferred_voice": preferred_voice})
+		self._voices = response["voices"]
+		self._voice = response["current_voice"]
+		self._providers = response.get("providers", self._providers)
+		self.logger.info(
+			"Helper voice reload complete. currentVoice=%s voiceCount=%s providers=%s",
+			self._voice,
+			len(self._voices),
+			self._providers,
+		)
+		return self._voice
+
+	def get_status(self):
+		return {
+			"mode": self._mode,
+			"providers": list(self._providers),
+			"voiceCount": len(self._voices),
+			"currentVoice": self._voice,
+			"pid": self._process.pid if self._process is not None else None,
+			"helperLog": get_helper_log_path(),
+		}
+
+	def synthesize_to_int16(self, text, speed=0.85, voice=None, volume=1.0, language="en-us", generation=None):
 		response = self._request(
 			{
 				"op": "synthesize",
@@ -165,9 +252,81 @@ class HelperEngineClient(object):
 				"voice": voice,
 				"volume": volume,
 				"language": language,
+				"generation": generation,
 			}
 		)
 		return memoryview(base64.b64decode(response["audio_b64"]))
+
+	def stream_synthesize_to_int16(self, text, speed=0.85, voice=None, volume=1.0, language="en-us", max_tokens=None, target_tokens=None, first_chunk_tokens=None):
+		with self._io_lock:
+			self._request_id += 1
+			request_id = self._request_id
+			payload = {
+				"id": request_id,
+				"op": "synthesize_stream",
+				"text": text,
+				"speed": speed,
+				"voice": voice,
+				"volume": volume,
+				"language": language,
+				"max_tokens": max_tokens,
+				"target_tokens": target_tokens,
+				"first_chunk_tokens": first_chunk_tokens,
+			}
+			start_time = time.perf_counter()
+			self._process.stdin.write(json.dumps(payload) + "\n")
+			self._process.stdin.flush()
+			while True:
+				response = self._read_message()
+				if response.get("id") != request_id:
+					raise RuntimeError("Unexpected helper response id %s during streaming request %s" % (response.get("id"), request_id))
+				if not response.get("ok"):
+					self.logger.warning("Helper stream request failed. error=%s", response.get("error"))
+					raise RuntimeError(response.get("error", "Unknown helper error"))
+				message_type = response.get("type")
+				if message_type == "audio_chunk":
+					audio_b64 = response.get("audio_b64", "")
+					yield response.get("text", ""), memoryview(base64.b64decode(audio_b64))
+					continue
+				if message_type == "done":
+					elapsed_ms = round((time.perf_counter() - start_time) * 1000, 1)
+					self.logger.info(
+						"Helper streamed synthesize response complete. chars=%s voice=%s elapsedMs=%s chunkCount=%s",
+						len(text),
+						voice or self._voice,
+						elapsed_ms,
+						response.get("chunk_count"),
+					)
+					return
+				raise RuntimeError("Unexpected helper response type: %s" % message_type)
+
+	def synthesize_preview_to_int16(self, text, voice_path, speed=0.85, volume=1.0, language="en-us"):
+		response = self._request(
+			{
+				"op": "synthesize_preview",
+				"text": text,
+				"voice_path": voice_path,
+				"speed": speed,
+				"volume": volume,
+				"language": language,
+			}
+		)
+		return memoryview(base64.b64decode(response["audio_b64"]))
+
+	def get_cache_stats(self):
+		return self._request({"op": "get_cache_stats"})
+
+	def clear_cache(self):
+		return self._request({"op": "clear_cache"})
+
+	def compact_cache(self):
+		return self._request({"op": "compact_cache"})
+
+	def segment_text(self, text, language="en-us", max_tokens=None, target_tokens=None, first_chunk_tokens=None):
+		text = re.sub(r"\s+", " ", (text or "")).strip()
+		if not text:
+			return []
+		return [text]
 
 	def close(self):
 		process = self._process
@@ -175,13 +334,50 @@ class HelperEngineClient(object):
 		if process is None:
 			return
 		try:
-			if process.stdin and process.stdout and process.poll() is None:
-				process.stdin.write(json.dumps({"id": 0, "op": "shutdown"}) + "\n")
-				process.stdin.flush()
+			with self._io_lock:
+				if process.stdin and process.stdout and process.poll() is None:
+					process.stdin.write(json.dumps({"id": 0, "op": "shutdown"}) + "\n")
+					process.stdin.flush()
+					try:
+						process.wait(timeout=0.25)
+					except Exception:
+						pass
 		except Exception:
 			pass
+		try:
+			if process.poll() is None:
+				process.terminate()
+		except Exception:
+			pass
+		self.logger.info("MaxLogic Kokoro helper closed. pid=%s", process.pid)
+
+	def interrupt(self, reason="stale speech", min_active_ms=0):
+		with self._state_lock:
+			process = self._process
+			request_active = self._request_active
+			request_started_at = self._request_started_at
+			if process is None or process.poll() is not None or not request_active:
+				return False
+			elapsed_ms = round((time.perf_counter() - request_started_at) * 1000, 1) if request_started_at else None
+			if elapsed_ms is not None and elapsed_ms < max(0, min_active_ms):
+				return False
+			self._request_interrupted = True
+			self._skip_next_prewarm = True
+		self.logger.info(
+			"Interrupting MaxLogic Kokoro helper. pid=%s reason=%s activeElapsedMs=%s",
+			process.pid,
+			reason,
+			elapsed_ms,
+		)
 		try:
 			process.terminate()
 		except Exception:
 			pass
-		self.logger.info("MaxLogic Kokoro helper closed. pid=%s", process.pid)
+		try:
+			process.wait(timeout=0.15)
+		except Exception:
+			try:
+				process.kill()
+			except Exception:
+				pass
+		return True

@@ -5,11 +5,15 @@ import os
 import sys
 import threading
 
+import addonHandler
 import config
 import nvwave
 import synthDriverHandler
 from logHandler import log
 import wx
+
+
+addonHandler.initTranslation()
 
 _GLOBAL_PLUGIN_ROOT = os.path.abspath(os.path.dirname(__file__))
 _SYNTH_ROOT = os.path.abspath(os.path.join(_GLOBAL_PLUGIN_ROOT, "..", "..", "synthDrivers", "maxlogic_kokoro"))
@@ -43,7 +47,6 @@ from synthDrivers.maxlogic_kokoro._cache_settings import (
 )
 from synthDrivers.maxlogic_kokoro._engine import DEFAULT_REFERENCE_ROOT, KokoroEngine
 from synthDrivers.maxlogic_kokoro._helper_client import HelperEngineClient
-from synthDrivers.maxlogic_kokoro._speech_cache import SpeechCache
 from synthDrivers.maxlogic_kokoro._voice_store import (
 	DuplicateVoiceError,
 	VoiceStoreError,
@@ -191,6 +194,57 @@ def _get_active_maxlogic_synth():
 	if synth is None or getattr(synth, "name", None) != "maxlogic_kokoro":
 		return None
 	return synth
+
+
+def _get_cache_helper_client():
+	helper = HelperEngineClient(_package_root(), log, helper_mode="cache", skip_prewarm=True)
+	return helper, True
+
+
+def _close_cache_helper_client(helper, should_close):
+	if should_close and helper is not None:
+		helper.close()
+
+
+def _build_cache_stats_payload(helper_response=None, error_message=None):
+	settings = get_speech_cache_settings()
+	if helper_response is None:
+		return {
+			"dbPath": "",
+			"entryCount": 0,
+			"sizeBytes": 0,
+			"sizeMb": 0.0,
+			"lastUsed": None,
+			"settings": settings,
+			"available": False,
+			"error": error_message or "Speech cache support is unavailable.",
+			"hotEntryCount": 0,
+			"hotSizeBytes": 0,
+			"hotSizeMb": 0.0,
+			"hotTtlSeconds": 0,
+		}
+	persistent = helper_response.get("persistent") or {}
+	hot = helper_response.get("hot") or {}
+	size_bytes = int(persistent.get("sizeBytes") or 0)
+	hot_size_bytes = int(hot.get("sizeBytes") or 0)
+	available = bool(persistent)
+	payload = {
+		"dbPath": persistent.get("dbPath", ""),
+		"entryCount": int(persistent.get("entryCount") or 0),
+		"sizeBytes": size_bytes,
+		"sizeMb": round(size_bytes / float(1024 * 1024), 2),
+		"lastUsed": persistent.get("lastUsed"),
+		"settings": settings,
+		"available": available,
+		"error": None if available else _("Persistent speech cache is unavailable."),
+		"hotEntryCount": int(hot.get("entryCount") or 0),
+		"hotSizeBytes": hot_size_bytes,
+		"hotSizeMb": round(hot_size_bytes / float(1024 * 1024), 2),
+		"hotTtlSeconds": int(hot.get("ttlSeconds") or 0),
+	}
+	if "sizeMb" in persistent:
+		payload["sizeMb"] = persistent["sizeMb"]
+	return payload
 
 
 def refresh_active_synth(reason, preferred_voice=None):
@@ -381,38 +435,19 @@ def get_speech_cache_settings():
 
 def get_speech_cache_stats():
 	try:
-		cache = SpeechCache(log)
+		helper, should_close = _get_cache_helper_client()
 	except Exception as error:
-		log.warning("MaxLogic Kokoro speech cache stats unavailable: %s", error)
-		return {
-			"dbPath": "",
-			"entryCount": 0,
-			"sizeBytes": 0,
-			"sizeMb": 0.0,
-			"lastUsed": None,
-			"settings": get_speech_cache_settings(),
-			"available": False,
-			"error": str(error),
-		}
+		log.warning("MaxLogic Kokoro helper cache stats unavailable: %s", error)
+		return _build_cache_stats_payload(error_message=str(error))
 	try:
 		try:
-			stats = cache.get_stats()
+			response = helper.get_cache_stats()
 		except Exception as error:
-			log.warning("MaxLogic Kokoro speech cache stats query failed: %s", error)
-			return {
-				"dbPath": "",
-				"entryCount": 0,
-				"sizeBytes": 0,
-				"sizeMb": 0.0,
-				"lastUsed": None,
-				"settings": get_speech_cache_settings(),
-				"available": False,
-				"error": str(error),
-			}
-		stats["available"] = True
-		return stats
+			log.warning("MaxLogic Kokoro helper cache stats query failed: %s", error)
+			return _build_cache_stats_payload(error_message=str(error))
+		return _build_cache_stats_payload(response)
 	finally:
-		cache.close()
+		_close_cache_helper_client(helper, should_close)
 
 
 def save_speech_cache_settings(settings):
@@ -426,15 +461,17 @@ def save_speech_cache_settings(settings):
 
 
 def clear_speech_cache():
-	cache = SpeechCache(log)
 	try:
-		cache.clear()
-		stats = cache.get_stats()
+		helper, should_close = _get_cache_helper_client()
+	except Exception as error:
+		log.warning("MaxLogic Kokoro helper cache clear unavailable: %s", error)
+		return _build_cache_stats_payload(error_message=str(error))
+	try:
+		response = helper.clear_cache()
 	finally:
-		cache.close()
+		_close_cache_helper_client(helper, should_close)
 	log.info("MaxLogic Kokoro speech cache cleared.")
-	stats["available"] = True
-	return stats
+	return _build_cache_stats_payload(response)
 
 
 def compact_speech_cache():
@@ -444,18 +481,24 @@ def compact_speech_cache():
 			"restartRequired": True,
 			"stats": get_speech_cache_stats(),
 		}
-	cache = SpeechCache(log)
 	try:
-		cache.compact()
-		stats = cache.get_stats()
+		helper, should_close = _get_cache_helper_client()
+	except Exception as error:
+		log.warning("MaxLogic Kokoro helper cache compact unavailable: %s", error)
+		return {
+			"compacted": False,
+			"restartRequired": False,
+			"stats": _build_cache_stats_payload(error_message=str(error)),
+		}
+	try:
+		response = helper.compact_cache()
 	finally:
-		cache.close()
+		_close_cache_helper_client(helper, should_close)
 	log.info("MaxLogic Kokoro speech cache compacted.")
-	stats["available"] = True
 	return {
-		"compacted": True,
+		"compacted": bool(response.get("compacted", True)),
 		"restartRequired": False,
-		"stats": stats,
+		"stats": _build_cache_stats_payload(response),
 	}
 
 

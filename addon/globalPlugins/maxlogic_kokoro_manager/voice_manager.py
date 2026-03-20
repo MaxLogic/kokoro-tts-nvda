@@ -557,11 +557,15 @@ class SpeechCachePanel(wx.Panel):
 
 		stats_box = wx.StaticBoxSizer(wx.VERTICAL, self, _("Current cache"))
 		self.path_label = wx.StaticText(self, label="")
-		self.size_label = wx.StaticText(self, label="")
-		self.entries_label = wx.StaticText(self, label="")
+		self.persistent_size_label = wx.StaticText(self, label="")
+		self.persistent_entries_label = wx.StaticText(self, label="")
+		self.hot_size_label = wx.StaticText(self, label="")
+		self.hot_entries_label = wx.StaticText(self, label="")
 		stats_box.Add(self.path_label, 0, wx.ALL, 5)
-		stats_box.Add(self.size_label, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 5)
-		stats_box.Add(self.entries_label, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 5)
+		stats_box.Add(self.persistent_size_label, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 5)
+		stats_box.Add(self.persistent_entries_label, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 5)
+		stats_box.Add(self.hot_size_label, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 5)
+		stats_box.Add(self.hot_entries_label, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 5)
 		main_sizer.Add(stats_box, 0, wx.EXPAND | wx.ALL, 5)
 
 		button_row = wx.BoxSizer(wx.HORIZONTAL)
@@ -625,17 +629,30 @@ class SpeechCachePanel(wx.Panel):
 		self.compact_button.Enable(cache_available)
 		if not stats.get("available", True):
 			self.path_label.SetLabel(_("Database: unavailable"))
-			self.size_label.SetLabel(_("Current size: unavailable"))
-			self.entries_label.SetLabel(_("Entries: unavailable"))
+			self.persistent_size_label.SetLabel(_("Persistent cache size: unavailable"))
+			self.persistent_entries_label.SetLabel(_("Persistent cache entries: unavailable"))
+			self.hot_size_label.SetLabel(_("Hot cache size: unavailable"))
+			self.hot_entries_label.SetLabel(_("Hot cache entries: unavailable"))
 			return
 		self.path_label.SetLabel(_("Database: {path}").format(path=stats.get("dbPath", "")))
-		self.size_label.SetLabel(
-			_("Current size: {size} of {limit}").format(
+		self.persistent_size_label.SetLabel(
+			_("Persistent cache: {size} of {limit}").format(
 				size=_format_cache_size(stats.get("sizeBytes", 0)),
 				limit=_("{size} MB").format(size=stats.get("settings", {}).get("maxSizeMb", 0)),
 			)
 		)
-		self.entries_label.SetLabel(_("Entries: {count}").format(count=stats.get("entryCount", 0)))
+		self.persistent_entries_label.SetLabel(
+			_("Persistent cache entries: {count}").format(count=stats.get("entryCount", 0))
+		)
+		self.hot_size_label.SetLabel(
+			_("Hot cache: {size}").format(size=_format_cache_size(stats.get("hotSizeBytes", 0)))
+		)
+		self.hot_entries_label.SetLabel(
+			_("Hot cache entries: {count} | TTL: {ttl}s").format(
+				count=stats.get("hotEntryCount", 0),
+				ttl=stats.get("hotTtlSeconds", 0),
+			)
+		)
 
 	def _update_custom_state(self):
 		mode_key = self._selected_mode_key()
@@ -680,7 +697,9 @@ class SpeechCachePanel(wx.Panel):
 		stats = service.get_speech_cache_stats()
 		self._load_into_controls(settings, stats)
 		if stats.get("available", True):
-			self.status_label.SetLabel(_("Speech cache settings loaded. Current size reports cached audio payload usage, not exact SQLite file size."))
+			self.status_label.SetLabel(
+				_("Speech cache settings loaded. Persistent cache shows SQLite-backed audio; hot cache shows short-lived helper memory used for quick paragraph repeats.")
+			)
 		else:
 			self.status_label.SetLabel(
 				_("Speech cache is currently unavailable.\nReason: {error}").format(error=stats.get("error", _("unknown")))

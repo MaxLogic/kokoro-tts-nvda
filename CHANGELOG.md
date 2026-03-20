@@ -16,3 +16,4 @@
 ### Changed
 - the development installer now links `globalPlugins` so live NVDA installs can load the voice manager during development
 - speech caching is now governed by a shared user-data policy file and helper-side cache hits are logged explicitly for repeated short utterances
+- medium and long paragraph chunks now use a short-lived helper hot cache, and playback chunking uses smaller follow-up chunks to reduce stale-speech delay during paragraph navigation

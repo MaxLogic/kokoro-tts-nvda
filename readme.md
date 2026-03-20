@@ -1,95 +1,129 @@
 # MaxLogic Kokoro TTS for NVDA
 
-This repository contains the first-party MaxLogic Kokoro TTS add-on source for NVDA.
+MaxLogic Kokoro TTS is an NVDA add-on that adds a separate Kokoro speech synthesizer under the name `MaxLogic Kokoro TTS`.
 
-## Goals
+It uses its own add-on ID and synth driver name so it can coexist with the older `kokoroTTS` add-on without conflicts.
 
-- Use a distinct add-on identity so it can coexist with the existing `kokoroTTS` add-on.
-- Keep the implementation maintainable and NVDA-native.
-- Prefer CUDA automatically when the bundled ONNX Runtime supports it.
-- Fall back cleanly to DirectML or CPU when CUDA is unavailable.
+## Current status
 
-## Current add-on identity
+This is an early public beta intended for testing and feedback.
 
-- Add-on id: `maxlogicKokoroTTS`
-- Synth driver name: `maxlogic_kokoro`
-- Visible name: `MaxLogic Kokoro TTS`
+## Features
 
-## Development asset strategy
+- Separate NVDA synth: `MaxLogic Kokoro TTS`
+- Built-in voice manager available from the NVDA menu
+- Official voice catalog with filtering by name, gender, and language
+- Community voice catalog for curated experimental voices
+- Bulk download and install of selected voices
+- Local voice install from `.bin`, `.json`, `.npy`, or `.zip`
+- Sample playback before installing a voice
+- User-downloaded voices stored outside the add-on so they survive reinstalls
+- Speech Cache tab with cache settings, live stats, clear, and compact actions
+- Built-in support for persistent short-speech caching and short-lived paragraph hot caching
+- Smarter chunking for longer text, with preference for sentence and clause boundaries
+- Improved repeated-navigation responsiveness for short prompts and paragraph hopping
 
-The source tree keeps heavy runtime assets out of Git by default.
+## Why this add-on feels faster
 
-During development, the driver resolves assets in this order:
+MaxLogic Kokoro TTS includes several responsiveness optimizations beyond basic Kokoro integration:
 
-1. Local files under `addon/synthDrivers/maxlogic_kokoro`
-2. `MAXLOGIC_KOKORO_ASSET_ROOT` if set
-3. The installed reference add-on at `%APPDATA%\nvda\addons\kokoroTTS\synthDrivers\kokoro`
+- Helper-backed GPU inference when a compatible 64-bit helper environment is available
+- Voice prewarming to reduce cold-start delay
+- Persistent cache for repeated short utterances such as navigation prompts and command feedback
+- Hot in-memory cache for longer paragraph chunks when moving back and forth through text
+- Prefetching of upcoming chunks while current audio is already playing
+- Safer chunk splitting for long text so large passages are less likely to fail
 
-This means the repo can be developed against the installed reference add-on without copying large binaries immediately.
+## What is included in this package
 
-## Bootstrapping a standalone local copy
+- Kokoro model files
+- eSpeak-NG runtime required by the phonemizer
+- A small built-in starter voice set
+- A bundled curated community mirror used by the Community tab
+- CPU runtime dependencies for immediate use after installation
 
-Run:
+## GPU support
 
-```powershell
-.\tools\bootstrap-reference-assets.ps1
-```
+The packaged add-on is ready to use after installation with the bundled CPU runtime.
 
-To also copy the reference add-on's bundled dependencies:
+CUDA and other accelerated modes are available as advanced setups, but on many NVDA installations they require an external 64-bit helper environment. If no helper is configured, the add-on falls back to the bundled in-process runtime.
 
-```powershell
-.\tools\bootstrap-reference-assets.ps1 -IncludeDeps
-```
+When helper mode is active, the add-on can use:
 
-Note: the reference add-on's bundled ONNX Runtime is CPU-only. CUDA support in this project depends on bundling a GPU-capable ONNX Runtime in `addon/synthDrivers/maxlogic_kokoro/deps`.
+- `CUDAExecutionProvider` for NVIDIA GPU acceleration
+- `DmlExecutionProvider` on supported DirectML setups
+- CPU fallback when no accelerator is available
 
-## 64-bit GPU helper
+## Installing the add-on
 
-Current NVDA deployments here are using 32-bit Python, while current `onnxruntime-gpu` and `onnxruntime-directml` wheels are x64-only.
+1. Open the `.nvda-addon` package file.
+2. Allow NVDA to install the add-on.
+3. Restart NVDA when prompted.
+4. Open NVDA Settings and select `MaxLogic Kokoro TTS` as the synthesizer.
 
-That means GPU inference must run out-of-process in a 64-bit helper.
+## Managing voices
 
-Create a helper environment with:
+Open:
 
-```powershell
-.\tools\bootstrap-helper-env.ps1 -Provider cuda
-```
+- `NVDA menu -> MaxLogic Kokoro voice manager...`
 
-Alternative:
+Tabs:
 
-```powershell
-.\tools\bootstrap-helper-env.ps1 -Provider dml
-.\tools\bootstrap-helper-env.ps1 -Provider cpu
-```
+- `Installed`: user-installed voices and built-in/fallback voices
+- `Official`: curated official Kokoro voices
+- `Community`: curated experimental community voices
+- `Speech Cache`: cache settings, persistent cache stats, and hot cache stats
 
-By default the synth will use `.\.helper-venv\Scripts\python.exe` when present.
+Available actions:
 
-You can override it with:
+- filter the online lists
+- play a sample for the focused voice
+- select visible voices
+- clear visible selection
+- download selected voices
+- install a local voice file
+- remove a user-installed voice
+- change cache policy for short or medium speech
+- clear or compact the cache
 
-```powershell
-$env:MAXLOGIC_KOKORO_HELPER_PYTHON = "C:\path\to\python.exe"
-```
+## Voice storage
 
-The helper uses the same add-on assets and reports its active execution providers back to the synth driver.
+Downloaded and user-installed voices are stored here:
 
-## Provider selection
+- `%APPDATA%\nvda\maxlogicKokoroTTS\voices`
 
-Set `MAXLOGIC_KOKORO_PROVIDER` to one of:
+This keeps your voice library separate from the add-on package itself.
 
-- `auto`
-- `cuda`
-- `dml`
-- `cpu`
+Speech cache and logs are also stored outside the add-on package:
 
-Optional:
+- Cache settings: `%APPDATA%\nvda\maxlogicKokoroTTS\speech-cache-settings.json`
+- Persistent cache database: `%APPDATA%\nvda\maxlogicKokoroTTS\cache\speech-cache.sqlite3`
 
-- `MAXLOGIC_KOKORO_DEVICE_ID` for CUDA device selection
-- `MAXLOGIC_KOKORO_ASSET_ROOT` to override where model assets are loaded from
-- `MAXLOGIC_KOKORO_HELPER_PYTHON` to point the synth at a 64-bit helper Python
+## Logging
 
-## Layout
+Useful logs:
 
-- `addon/synthDrivers/maxlogic_kokoro/__init__.py`: NVDA synth driver entry point
-- `addon/synthDrivers/maxlogic_kokoro/_engine.py`: Kokoro inference engine
-- `addon/synthDrivers/maxlogic_kokoro/_phonemizer.py`: eSpeak-backed phonemizer wrapper
-- `tools/bootstrap-reference-assets.ps1`: local asset bootstrap helper
+- NVDA log: `C:\Users\pawel\AppData\Local\Temp\nvda.log`
+- MaxLogic helper log: `%APPDATA%\nvda\maxlogicKokoroTTS\logs\helper.log`
+
+## Speech cache
+
+The add-on uses two cache layers:
+
+- `Persistent cache`: SQLite-backed cache for repeated short utterances
+- `Hot cache`: short-lived helper memory cache for quick paragraph repeats
+
+The Speech Cache tab shows both layers separately so it is easier to understand what the add-on is currently using.
+
+## Known limitations
+
+- Community voices are curated and mirrored; the list is intentionally smaller than the full internet.
+- GPU acceleration depends on the local NVDA/Python environment and may not be available out of the box on every system.
+- Non-English support depends on available Kokoro voices and phonemizer quality.
+- Very rapid movement between large paragraphs can still be limited by the time required to finish an already-running neural inference request.
+
+## Add-on identity
+
+- Add-on ID: `maxlogicKokoroTTS`
+- Synth driver: `maxlogic_kokoro`
+- Display name: `MaxLogic Kokoro TTS`
