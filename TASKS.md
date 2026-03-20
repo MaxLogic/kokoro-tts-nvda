@@ -1,9 +1,9 @@
 # Tasks
-Next task ID: T-006
+Next task ID: T-010
 
 ## Summary
-Open tasks: 4 (In Progress: 0, Next Today: 2, Next This Week: 2, Next Later: 0, Blocked: 0)
-Done tasks: 1
+Open tasks: 6 (In Progress: 0, Next Today: 2, Next This Week: 4, Next Later: 0, Blocked: 0)
+Done tasks: 3
 
 ## In Progress
 
@@ -50,6 +50,40 @@ Verify: cli-proof, manual
 Notes: Keep the initial local install format simple; archive support can wrap one or more `.npy` voices plus metadata.
 
 ## Next – This Week
+
+### T-008 [CLI] Roll out the low-risk v1.1-zh English subset
+Outcome:
+- the add-on makes the new English v1.1-zh voices `af_maple`, `af_sol`, and `bf_vale` available for preview and download
+- downloaded v1.1-zh English voices install through the existing user-voice pipeline and remain clearly labeled as v1.1-zh voices
+- documentation and UI text explain that this is the first supported subset of the broader v1.1-zh release
+Proof:
+- Run: `python -m py_compile addon\globalPlugins\maxlogic_kokoro_manager\*.py addon\synthDrivers\maxlogic_kokoro\*.py`
+  Expect: exit=0
+- Run: `Get-ChildItem "$env:APPDATA\nvda\maxlogicKokoroTTS\voices"`
+  Expect: after installing one of the v1.1-zh English voices, the expected user-managed voice file exists in the voice store
+- Run: `Get-Content "C:\Users\pawel\AppData\Roaming\nvda\maxlogicKokoroTTS\logs\helper.log" -Tail 120`
+  Expect: preview or synthesis with a v1.1-zh English voice logs a successful helper request for the selected voice
+Touches: addon/synthDrivers/maxlogic_kokoro/_catalog.py, addon/globalPlugins/maxlogic_kokoro_manager/, addon/doc/en/readme.md, readme.md
+Deps: T-006, T-007
+Verify: cli-proof, manual, visual
+Notes: Keep the first rollout intentionally narrow so compatibility issues are isolated before exposing the full 103-voice set.
+
+### T-009 [CLI] Validate runtime compatibility for broader v1.1-zh adoption
+Outcome:
+- the project has a documented yes/no compatibility result for using v1.1-zh voices with the current runtime and helper path
+- if broader v1.1-zh support needs a separate model asset or model-selection path, that requirement is captured explicitly with the affected runtime surfaces
+- the decision for exposing or deferring the `zf_*` voice set is recorded with evidence from preview/install/runtime tests
+Proof:
+- Run: `python -m py_compile addon\synthDrivers\maxlogic_kokoro\_engine.py addon\synthDrivers\maxlogic_kokoro\_helper_process.py addon\synthDrivers\maxlogic_kokoro\_helper_client.py`
+  Expect: exit=0
+- Run: `Get-Content "C:\Users\pawel\AppData\Roaming\nvda\maxlogicKokoroTTS\logs\helper.log" -Tail 150`
+  Expect: log contains explicit validation attempts for representative v1.1-zh voices and shows whether synthesis succeeded or failed with the current runtime
+- Run: `Get-Content CHANGELOG.md`
+  Expect: after the work lands, changelog or linked notes record whether wider v1.1-zh rollout is enabled or deferred
+Touches: addon/synthDrivers/maxlogic_kokoro/_engine.py, addon/synthDrivers/maxlogic_kokoro/_helper_process.py, addon/synthDrivers/maxlogic_kokoro/_helper_client.py, CHANGELOG.md
+Deps: T-008
+Verify: cli-proof, manual
+Notes: This task is the gate for exposing the full Chinese `zf_*` set and any future multi-model runtime path.
 
 ### T-003 [CLI] Add curated online voice catalog and verified downloader
 Outcome:
@@ -99,6 +133,37 @@ Notes: Model the UI structure after Sonata’s voice manager, but keep the Kokor
 ## Blocked
 
 ## Done
+
+### T-006 [CLI] Add official Kokoro v1.1-zh catalog support
+Outcome:
+- the add-on can fetch and cache a second official catalog for `onnx-community/Kokoro-82M-v1.1-zh-ONNX` without breaking the existing v1.0 official catalog
+- v1.1-zh catalog entries expose normalized metadata needed by the manager, including stable voice id, source file, language, and model family/version
+- catalog refresh and cache status clearly distinguish the v1.1-zh source from the current official catalog
+Proof:
+- Run: `python -m py_compile addon\synthDrivers\maxlogic_kokoro\_catalog.py addon\globalPlugins\maxlogic_kokoro_manager\service.py`
+  Expect: exit=0
+- Run: `Get-ChildItem "$env:APPDATA\nvda\maxlogicKokoroTTS\cache"`
+  Expect: after refreshing both official catalogs, separate cache files exist for v1.0 and v1.1-zh
+- Run: `Get-Content "C:\Users\pawel\AppData\Local\Temp\nvda.log" -Tail 150`
+  Expect: log shows a successful refresh or cache fallback for the v1.1-zh official catalog and identifies the source distinctly from the v1.0 catalog
+Touches: addon/synthDrivers/maxlogic_kokoro/_catalog.py, addon/globalPlugins/maxlogic_kokoro_manager/service.py
+Verify: cli-proof, manual
+Notes: Source should target the ONNX community build rather than the PyTorch-only upstream tree.
+
+### T-007 [UI] Add dedicated manager exposure for official v1.1-zh voices
+Outcome:
+- the voice manager exposes the v1.1-zh voice set separately from the existing official v1.0 list
+- users can filter the new catalog by name, gender, and language without mixing it into the current official tab
+- preview and selection status text remain accessible and understandable with the larger voice set
+Proof:
+- Run: `python -m py_compile addon\globalPlugins\maxlogic_kokoro_manager\voice_manager.py addon\globalPlugins\maxlogic_kokoro_manager\service.py`
+  Expect: exit=0
+- Run: `Get-Content "C:\Users\pawel\AppData\Local\Temp\nvda.log" -Tail 150`
+  Expect: opening the voice manager and switching to the v1.1-zh view logs the selected catalog and does not raise UI/plugin import errors
+Touches: addon/globalPlugins/maxlogic_kokoro_manager/voice_manager.py, addon/globalPlugins/maxlogic_kokoro_manager/service.py
+Deps: T-006
+Verify: manual, visual
+Notes: Prefer a dedicated tab or equivalent first-class source view instead of silently merging v1.1-zh into the existing official list.
 
 ### T-005 [UI] Add speech cache settings and maintenance controls
 Outcome:

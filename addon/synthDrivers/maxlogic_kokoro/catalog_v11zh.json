@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 2,
+  "entries": [
+    {
+      "id": "af_maple",
+      "displayName": "Af Maple",
+      "language": "en-us",
+      "languageLabel": "American English",
+      "gender": "female",
+      "genderLabel": "Female",
+      "sha256": "bd5b230b916ea98c67a3a7a833a3ce43e535ce56a81503f4166ee9390b9ddeeb",
+      "sizeBytes": 522240,
+      "source": "huggingface:onnx-community/Kokoro-82M-v1.1-zh-ONNX",
+      "sourceFile": "af_maple.bin",
+      "modelFamily": "Kokoro",
+      "modelVersion": "v1.1-zh",
+      "modelId": "onnx-community/Kokoro-82M-v1.1-zh-ONNX"
+    },
+    {
+      "id": "af_sol",
+      "displayName": "Af Sol",
+      "language": "en-us",
+      "languageLabel": "American English",
+      "gender": "female",
+      "genderLabel": "Female",
+      "sha256": "87c1d6d6a3f13f89ed54a6a67cc1ff75b926aebc3a2aac3086e6dd109a8147e6",
+      "sizeBytes": 522240,
+      "source": "huggingface:onnx-community/Kokoro-82M-v1.1-zh-ONNX",
+      "sourceFile": "af_sol.bin",
+      "modelFamily": "Kokoro",
+      "modelVersion": "v1.1-zh",
+      "modelId": "onnx-community/Kokoro-82M-v1.1-zh-ONNX"
+    },
+    {
+      "id": "bf_vale",
+      "displayName": "Bf Vale",
+      "language": "en-gb",
+      "languageLabel": "British English",
+      "gender": "female",
+      "genderLabel": "Female",
+      "sha256": "2536f7922d31d96e994135ac2bb73f5a3c01326476200513c57d988822c6ca4d",
+      "sizeBytes": 522240,
+      "source": "huggingface:onnx-community/Kokoro-82M-v1.1-zh-ONNX",
+      "sourceFile": "bf_vale.bin",
+      "modelFamily": "Kokoro",
+      "modelVersion": "v1.1-zh",
+      "modelId": "onnx-community/Kokoro-82M-v1.1-zh-ONNX"
+    }
+  ]
+}

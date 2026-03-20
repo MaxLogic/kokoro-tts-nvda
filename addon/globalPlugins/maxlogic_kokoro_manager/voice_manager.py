@@ -790,6 +790,14 @@ class MaxLogicVoiceManagerDialog(wx.Dialog):
 			empty_message=_("No official voices are available in the current catalog."),
 			allow_refresh=True,
 		)
+		self.official_v11zh_panel = CatalogVoicesPanel(
+			self.notebook,
+			on_change=self.refresh_all,
+			catalog_name="official_v11zh",
+			title=_("Official Kokoro v1.1-zh voices"),
+			empty_message=_("No official v1.1-zh voices are available in the current catalog."),
+			allow_refresh=True,
+		)
 		self.community_panel = CatalogVoicesPanel(
 			self.notebook,
 			on_change=self.refresh_all,
@@ -801,16 +809,48 @@ class MaxLogicVoiceManagerDialog(wx.Dialog):
 		self.cache_panel = SpeechCachePanel(self.notebook)
 		self.notebook.AddPage(self.installed_panel, _("Installed"))
 		self.notebook.AddPage(self.official_panel, _("Official"))
+		self.notebook.AddPage(self.official_v11zh_panel, _("Official v1.1-zh"))
 		self.notebook.AddPage(self.community_panel, _("Community"))
 		self.notebook.AddPage(self.cache_panel, _("Speech Cache"))
+		self.notebook.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self.on_page_changed)
 		main_sizer.Add(self.notebook, 1, wx.EXPAND | wx.LEFT | wx.RIGHT, 10)
 		button_sizer = self.CreateButtonSizer(wx.CLOSE)
 		main_sizer.Add(button_sizer, 0, wx.EXPAND | wx.ALL, 10)
 		self.SetSizer(main_sizer)
 		self.CentreOnScreen()
+		self._log_active_page()
 
 	def refresh_all(self):
 		self.installed_panel.refresh_entries()
 		self.official_panel.refresh_entries(force_refresh=False)
+		self.official_v11zh_panel.refresh_entries(force_refresh=False)
 		self.community_panel.refresh_entries(force_refresh=False)
 		self.cache_panel.refresh_from_runtime()
+
+	def _describe_active_page(self):
+		index = self.notebook.GetSelection()
+		if index == wx.NOT_FOUND:
+			return None
+		label = self.notebook.GetPageText(index)
+		page = self.notebook.GetPage(index)
+		catalog_name = getattr(page, "_catalog_name", None)
+		return {
+			"index": index,
+			"label": label,
+			"catalog": catalog_name,
+		}
+
+	def _log_active_page(self):
+		payload = self._describe_active_page()
+		if payload is None:
+			return
+		log.info(
+			"MaxLogic Kokoro voice manager selected page. label=%s catalog=%s index=%s",
+			payload["label"],
+			payload["catalog"] or "n/a",
+			payload["index"],
+		)
+
+	def on_page_changed(self, event):
+		self._log_active_page()
+		event.Skip()

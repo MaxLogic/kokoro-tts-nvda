@@ -6,6 +6,7 @@
 - user-managed voice storage under `%APPDATA%\nvda\maxlogicKokoroTTS\voices` with merged discovery ahead of bundled and reference voices
 - local voice install/remove support for `.bin`, `.npy`, `.json`, and `.zip` voice files
 - a curated official Kokoro catalog backed by the ONNX community model index, with cached availability refresh and SHA-256 verification
+- a second official `Kokoro-82M-v1.1-zh-ONNX` catalog with its own manager tab and cache path
 - a separate bundled community catalog scaffold for future curated experimental voices
 - a MaxLogic Kokoro Voice Manager menu entry and dialog with Installed, Official, and Community tabs
 - a `Speech Cache` manager tab with cache size, cache-mode, maintenance, and live cache statistics controls
@@ -15,5 +16,6 @@
 
 ### Changed
 - the development installer now links `globalPlugins` so live NVDA installs can load the voice manager during development
+- the voice manager now logs the selected catalog page, including the dedicated `Official v1.1-zh` source view
 - speech caching is now governed by a shared user-data policy file and helper-side cache hits are logged explicitly for repeated short utterances
 - medium and long paragraph chunks now use a short-lived helper hot cache, and playback chunking uses smaller follow-up chunks to reduce stale-speech delay during paragraph navigation

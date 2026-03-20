@@ -40,6 +40,13 @@ CATALOGS = {
 		"downloadUrlTemplate": "https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX/resolve/main/voices/{sourceFile}?download=true",
 		"onlinePrefix": "voices/",
 	},
+	"official_v11zh": {
+		"bundleFile": "catalog_v11zh.json",
+		"cacheFile": "official-v11zh-voice-catalog.json",
+		"onlineIndexUrl": "https://huggingface.co/api/models/onnx-community/Kokoro-82M-v1.1-zh-ONNX/tree/main?recursive=true&expand=true",
+		"downloadUrlTemplate": "https://huggingface.co/onnx-community/Kokoro-82M-v1.1-zh-ONNX/resolve/main/voices/{sourceFile}?download=true",
+		"onlinePrefix": "voices/",
+	},
 	"community": {
 		"bundleFile": "community_catalog.json",
 		"cacheFile": "community-voice-catalog.json",
