@@ -4,10 +4,6 @@ MaxLogic Kokoro TTS is an NVDA add-on that adds a separate Kokoro speech synthes
 
 It uses its own add-on ID and synth driver name so it can coexist with the older `kokoroTTS` add-on without conflicts.
 
-## Current status
-
-This is an early public beta intended for testing and feedback.
-
 ## Features
 
 - Separate NVDA synth: `MaxLogic Kokoro TTS`
@@ -41,6 +37,8 @@ MaxLogic Kokoro TTS includes several responsiveness optimizations beyond basic K
 - A small built-in starter voice set
 - A bundled curated community mirror used by the Community tab
 - CPU runtime dependencies for immediate use after installation
+
+This makes the release package large, but it also means the add-on works offline immediately after installation.
 
 ## GPU support
 
@@ -114,6 +112,25 @@ The add-on uses two cache layers:
 - `Hot cache`: short-lived helper memory cache for quick paragraph repeats
 
 The Speech Cache tab shows both layers separately so it is easier to understand what the add-on is currently using.
+
+## License and attribution
+
+The MaxLogic Kokoro TTS add-on code is distributed under the MIT license. The package also bundles third-party components and assets with their own licenses and attribution requirements.
+
+Bundled components include:
+
+- Kokoro ONNX model data based on `onnx-community/Kokoro-82M-v1.0-ONNX`
+- Kokoro upstream model project from `hexgrad/Kokoro-82M`
+- eSpeak-NG runtime used by the phonemizer
+- ONNX Runtime CPU binaries
+- NumPy CPU binaries
+- Curated community voice mirrors from the upstream Hugging Face repositories listed in the bundled notices
+
+See:
+
+- `LICENSE`
+- `doc/en/third-party-notices.html`
+- `doc/en/third-party-notices.md`
 
 ## Known limitations
 

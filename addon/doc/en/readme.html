@@ -9,8 +9,6 @@
 <h1>MaxLogic Kokoro TTS for NVDA</h1>
 <p>MaxLogic Kokoro TTS is an NVDA add-on that adds a separate Kokoro speech synthesizer under the name <code>MaxLogic Kokoro TTS</code>.</p>
 <p>It uses its own add-on ID and synth driver name so it can coexist with the older <code>kokoroTTS</code> add-on without conflicts.</p>
-<h2>Current status</h2>
-<p>This is an early public beta intended for testing and feedback.</p>
 <h2>Features</h2>
 <ul>
 <li>Separate NVDA synth: <code>MaxLogic Kokoro TTS</code></li>
@@ -44,6 +42,7 @@
 <li>A bundled curated community mirror used by the Community tab</li>
 <li>CPU runtime dependencies for immediate use after installation</li>
 </ul>
+<p>This makes the release package large, but it also means the add-on works offline immediately after installation.</p>
 <h2>GPU support</h2>
 <p>The packaged add-on is ready to use after installation with the bundled CPU runtime.</p>
 <p>CUDA and other accelerated modes are available as advanced setups, but on many NVDA installations they require an external 64-bit helper environment. If no helper is configured, the add-on falls back to the bundled in-process runtime.</p>
@@ -108,6 +107,23 @@
 <li><code>Hot cache</code>: short-lived helper memory cache for quick paragraph repeats</li>
 </ul>
 <p>The Speech Cache tab shows both layers separately so it is easier to understand what the add-on is currently using.</p>
+<h2>License and attribution</h2>
+<p>The MaxLogic Kokoro TTS add-on code is distributed under the MIT license. The package also bundles third-party components and assets with their own licenses and attribution requirements.</p>
+<p>Bundled components include:</p>
+<ul>
+<li>Kokoro ONNX model data based on <code>onnx-community/Kokoro-82M-v1.0-ONNX</code></li>
+<li>Kokoro upstream model project from <code>hexgrad/Kokoro-82M</code></li>
+<li>eSpeak-NG runtime used by the phonemizer</li>
+<li>ONNX Runtime CPU binaries</li>
+<li>NumPy CPU binaries</li>
+<li>Curated community voice mirrors from the upstream Hugging Face repositories listed in the bundled notices</li>
+</ul>
+<p>See:</p>
+<ul>
+<li><code>LICENSE</code></li>
+<li><code>doc/en/third-party-notices.html</code></li>
+<li><code>doc/en/third-party-notices.md</code></li>
+</ul>
 <h2>Known limitations</h2>
 <ul>
 <li>Community voices are curated and mirrored; the list is intentionally smaller than the full internet.</li>

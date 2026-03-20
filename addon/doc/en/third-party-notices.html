@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" type="text/css" href="../style.css" media="screen">
+<title>MaxLogic Kokoro TTS 0.1.0</title>
+</head>
+<body>
+<h1>Third-Party Notices</h1>
+<p>MaxLogic Kokoro TTS bundles or references third-party software and voice assets.</p>
+<h2>Add-on code</h2>
+<ul>
+<li>Component: MaxLogic Kokoro TTS add-on code</li>
+<li>Source: https://github.com/MaxLogic/kokoro-tts-nvda</li>
+<li>License: MIT</li>
+</ul>
+<h2>Kokoro model</h2>
+<ul>
+<li>Component: <code>kokoro.onnx</code> and related Kokoro configuration assets</li>
+<li>Source model page: https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX</li>
+<li>Upstream project page: https://huggingface.co/hexgrad/Kokoro-82M</li>
+<li>License shown on the upstream pages: Apache-2.0</li>
+<li>Notes: This package bundles the ONNX export used by the synth driver.</li>
+</ul>
+<h2>eSpeak-NG runtime</h2>
+<ul>
+<li>Component: bundled <code>espeak-ng.exe</code>, <code>libespeak-ng.dll</code>, and <code>espeak-ng-data</code></li>
+<li>Project page: https://github.com/espeak-ng/espeak-ng</li>
+<li>License: see the bundled eSpeak-NG project files and notices in that runtime distribution</li>
+<li>Notes: The add-on invokes eSpeak-NG as an external phonemizer process.</li>
+</ul>
+<h2>ONNX Runtime</h2>
+<ul>
+<li>Component: bundled CPU ONNX Runtime binaries</li>
+<li>Project page: https://github.com/microsoft/onnxruntime</li>
+<li>License: see the bundled <code>ThirdPartyNotices.txt</code> and ONNX Runtime license files in <code>deps/onnxruntime</code></li>
+</ul>
+<h2>NumPy</h2>
+<ul>
+<li>Component: bundled NumPy CPU binaries</li>
+<li>Project page: https://github.com/numpy/numpy</li>
+<li>License: see the bundled NumPy license files in <code>deps/numpy</code></li>
+</ul>
+<h2>Community voice mirrors</h2>
+<p>The package currently bundles a curated mirror of community Kokoro-compatible voices for offline installation and preview.</p>
+<p>Curated upstream sources:</p>
+<ul>
+<li><code>Sethblocks/KokoroVoices</code></li>
+<li>https://huggingface.co/Sethblocks/KokoroVoices</li>
+<li><code>kiriyamaX/kokoro-v1_0</code></li>
+<li>https://huggingface.co/kiriyamaX/kokoro-v1_0</li>
+<li><code>asif00/Kokoro-Conversational</code></li>
+<li>https://huggingface.co/asif00/Kokoro-Conversational</li>
+</ul>
+<p>Notes:</p>
+<ul>
+<li>these voices are mirrored in converted <code>.bin</code> form for NVDA consumption</li>
+<li>metadata for the curated list is shipped in <code>community_sources.json</code> and <code>community_catalog.json</code></li>
+<li>users should review the upstream repository pages for current terms, provenance, and any additional attribution requirements</li>
+</ul>
+</body>
+</html>
