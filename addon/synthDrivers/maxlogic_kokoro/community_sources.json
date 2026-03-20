@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "id": "Sethblocks/KokoroVoices",
+      "kind": "huggingface-model",
+      "label": "Sethblocks KokoroVoices",
+      "entries": [
+        {
+          "id": "af_mika",
+          "displayName": "Af Mika",
+          "language": "en-us",
+          "languageLabel": "American English",
+          "gender": "female",
+          "genderLabel": "Female",
+          "upstreamPath": "af_mika.pt"
+        },
+        {
+          "id": "af_mrs_claus",
+          "displayName": "Af Mrs Claus",
+          "language": "en-us",
+          "languageLabel": "American English",
+          "gender": "female",
+          "genderLabel": "Female",
+          "upstreamPath": "af_mrs_claus.pt"
+        },
+        {
+          "id": "am_andy",
+          "displayName": "Am Andy",
+          "language": "en-us",
+          "languageLabel": "American English",
+          "gender": "male",
+          "genderLabel": "Male",
+          "upstreamPath": "am_andy.pt"
+        },
+        {
+          "id": "am_dylan",
+          "displayName": "Am Dylan",
+          "language": "en-us",
+          "languageLabel": "American English",
+          "gender": "male",
+          "genderLabel": "Male",
+          "upstreamPath": "am_dylan.pt"
+        },
+        {
+          "id": "heart_young",
+          "displayName": "Heart Young",
+          "language": "en-us",
+          "languageLabel": "American English",
+          "gender": "unknown",
+          "genderLabel": "Unknown",
+          "upstreamPath": "heart_young.pt"
+        }
+      ]
+    },
+    {
+      "id": "kiriyamaX/kokoro-v1_0",
+      "kind": "huggingface-model",
+      "label": "kiriyamaX Kokoro v1.0",
+      "entries": [
+        {
+          "id": "af_k1",
+          "displayName": "Af K1",
+          "language": "en-us",
+          "languageLabel": "American English",
+          "gender": "female",
+          "genderLabel": "Female",
+          "upstreamPath": "voices/af_k1.pt"
+        },
+        {
+          "id": "af_blend_29",
+          "displayName": "Af Blend 29",
+          "language": "en-us",
+          "languageLabel": "American English",
+          "gender": "female",
+          "genderLabel": "Female",
+          "upstreamPath": "voices/af_af_heart_0.58_af_bella_0.49_af_nicole_1.00_bf_isabella_0.29.pt"
+        }
+      ]
+    },
+    {
+      "id": "asif00/Kokoro-Conversational",
+      "kind": "huggingface-model",
+      "label": "asif00 Kokoro Conversational",
+      "entries": [
+        {
+          "id": "af_bella_nicole",
+          "displayName": "Af Bella Nicole",
+          "language": "en-us",
+          "languageLabel": "American English",
+          "gender": "female",
+          "genderLabel": "Female",
+          "upstreamPath": "data/voices/af_bella_nicole.pt"
+        },
+        {
+          "id": "af_nicole_sky",
+          "displayName": "Af Nicole Sky",
+          "language": "en-us",
+          "languageLabel": "American English",
+          "gender": "female",
+          "genderLabel": "Female",
+          "upstreamPath": "data/voices/af_nicole_sky.pt"
+        },
+        {
+          "id": "af_sarah_nicole",
+          "displayName": "Af Sarah Nicole",
+          "language": "en-us",
+          "languageLabel": "American English",
+          "gender": "female",
+          "genderLabel": "Female",
+          "upstreamPath": "data/voices/af_sarah_nicole.pt"
+        },
+        {
+          "id": "af_sky_adam",
+          "displayName": "Af Sky Adam",
+          "language": "en-us",
+          "languageLabel": "American English",
+          "gender": "unknown",
+          "genderLabel": "Unknown",
+          "upstreamPath": "data/voices/af_sky_adam.pt"
+        },
+        {
+          "id": "af_sky_emma",
+          "displayName": "Af Sky Emma",
+          "language": "en-us",
+          "languageLabel": "American English",
+          "gender": "female",
+          "genderLabel": "Female",
+          "upstreamPath": "data/voices/af_sky_emma.pt"
+        },
+        {
+          "id": "af_sky_emma_isabella",
+          "displayName": "Af Sky Emma Isabella",
+          "language": "en-us",
+          "languageLabel": "American English",
+          "gender": "female",
+          "genderLabel": "Female",
+          "upstreamPath": "data/voices/af_sky_emma_isabella.pt"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "generatedAt": "2026-03-19T21:22:55Z",
+  "schemaVersion": 1,
+  "voices": [
+    {
+      "id": "af_mika",
+      "mirrorPath": "C:\\Users\\pawel\\AppData\\Roaming\\nvda\\maxlogicKokoroTTS\\community-mirror\\voices\\af_mika.bin",
+      "repo": "Sethblocks/KokoroVoices",
+      "sha256": "72e022a5f8535300ffd0079719aa3ca83c39e780d39c64b545047642e74f8b3f",
+      "sizeBytes": 522240,
+      "upstreamPath": "af_mika.pt"
+    },
+    {
+      "id": "af_mrs_claus",
+      "mirrorPath": "C:\\Users\\pawel\\AppData\\Roaming\\nvda\\maxlogicKokoroTTS\\community-mirror\\voices\\af_mrs_claus.bin",
+      "repo": "Sethblocks/KokoroVoices",
+      "sha256": "c3820b4abc0df185627296396810ae5e3a985e29cd853e5b0ebbd5502bcfeac9",
+      "sizeBytes": 522240,
+      "upstreamPath": "af_mrs_claus.pt"
+    },
+    {
+      "id": "am_andy",
+      "mirrorPath": "C:\\Users\\pawel\\AppData\\Roaming\\nvda\\maxlogicKokoroTTS\\community-mirror\\voices\\am_andy.bin",
+      "repo": "Sethblocks/KokoroVoices",
+      "sha256": "a517698242857a5fd9b3d7da346cc997ba5d1cbe7421f8c6cd582233b98930a3",
+      "sizeBytes": 522240,
+      "upstreamPath": "am_andy.pt"
+    },
+    {
+      "id": "am_dylan",
+      "mirrorPath": "C:\\Users\\pawel\\AppData\\Roaming\\nvda\\maxlogicKokoroTTS\\community-mirror\\voices\\am_dylan.bin",
+      "repo": "Sethblocks/KokoroVoices",
+      "sha256": "76a30475a0cc849ded98382c451102b175648a968562d0bdc0085278b24e2b9e",
+      "sizeBytes": 522240,
+      "upstreamPath": "am_dylan.pt"
+    },
+    {
+      "id": "heart_young",
+      "mirrorPath": "C:\\Users\\pawel\\AppData\\Roaming\\nvda\\maxlogicKokoroTTS\\community-mirror\\voices\\heart_young.bin",
+      "repo": "Sethblocks/KokoroVoices",
+      "sha256": "ad3781816d1890d43d5bafdff91c7faf766f3d5c633932c21d024c6536693e9c",
+      "sizeBytes": 522240,
+      "upstreamPath": "heart_young.pt"
+    },
+    {
+      "id": "af_k1",
+      "mirrorPath": "C:\\Users\\pawel\\AppData\\Roaming\\nvda\\maxlogicKokoroTTS\\community-mirror\\voices\\af_k1.bin",
+      "repo": "kiriyamaX/kokoro-v1_0",
+      "sha256": "087d94e24becacecb9296cc19ceacbacd7dced3bc5b6bbfb50e615bd5720fa16",
+      "sizeBytes": 522240,
+      "upstreamPath": "voices/af_k1.pt"
+    },
+    {
+      "id": "af_blend_29",
+      "mirrorPath": "C:\\Users\\pawel\\AppData\\Roaming\\nvda\\maxlogicKokoroTTS\\community-mirror\\voices\\af_blend_29.bin",
+      "repo": "kiriyamaX/kokoro-v1_0",
+      "sha256": "b081a36a701876c933a72d8a0bf55df5b89d37a8d01fce0e6df1570b14cdab8b",
+      "sizeBytes": 522240,
+      "upstreamPath": "voices/af_af_heart_0.58_af_bella_0.49_af_nicole_1.00_bf_isabella_0.29.pt"
+    },
+    {
+      "id": "af_bella_nicole",
+      "mirrorPath": "C:\\Users\\pawel\\AppData\\Roaming\\nvda\\maxlogicKokoroTTS\\community-mirror\\voices\\af_bella_nicole.bin",
+      "repo": "asif00/Kokoro-Conversational",
+      "sha256": "0cc03998172112c9adc99bbbafa0eeb74fc219e8a6079a623e2fc339d5b92c3c",
+      "sizeBytes": 523264,
+      "upstreamPath": "data/voices/af_bella_nicole.pt"
+    },
+    {
+      "id": "af_nicole_sky",
+      "mirrorPath": "C:\\Users\\pawel\\AppData\\Roaming\\nvda\\maxlogicKokoroTTS\\community-mirror\\voices\\af_nicole_sky.bin",
+      "repo": "asif00/Kokoro-Conversational",
+      "sha256": "72e04b21da1666975b1ab097f5cd102b660ed59693b05f1e46ec940ac93b6f44",
+      "sizeBytes": 523264,
+      "upstreamPath": "data/voices/af_nicole_sky.pt"
+    },
+    {
+      "id": "af_sarah_nicole",
+      "mirrorPath": "C:\\Users\\pawel\\AppData\\Roaming\\nvda\\maxlogicKokoroTTS\\community-mirror\\voices\\af_sarah_nicole.bin",
+      "repo": "asif00/Kokoro-Conversational",
+      "sha256": "1faf6a4fb05e04fa6ee0e4bbf43c3ef2ebf451a4dbbdd905f3c818b7c028c23c",
+      "sizeBytes": 523264,
+      "upstreamPath": "data/voices/af_sarah_nicole.pt"
+    },
+    {
+      "id": "af_sky_adam",
+      "mirrorPath": "C:\\Users\\pawel\\AppData\\Roaming\\nvda\\maxlogicKokoroTTS\\community-mirror\\voices\\af_sky_adam.bin",
+      "repo": "asif00/Kokoro-Conversational",
+      "sha256": "a54a77fd7b6af6163b092c5d73ecd95bfb84e69137249378fae838b164b4357f",
+      "sizeBytes": 523264,
+      "upstreamPath": "data/voices/af_sky_adam.pt"
+    },
+    {
+      "id": "af_sky_emma",
+      "mirrorPath": "C:\\Users\\pawel\\AppData\\Roaming\\nvda\\maxlogicKokoroTTS\\community-mirror\\voices\\af_sky_emma.bin",
+      "repo": "asif00/Kokoro-Conversational",
+      "sha256": "b3157ea68461d6b04ea3dbd35d7351a83e52e03aa0150bb0560eae886717a704",
+      "sizeBytes": 523264,
+      "upstreamPath": "data/voices/af_sky_emma.pt"
+    },
+    {
+      "id": "af_sky_emma_isabella",
+      "mirrorPath": "C:\\Users\\pawel\\AppData\\Roaming\\nvda\\maxlogicKokoroTTS\\community-mirror\\voices\\af_sky_emma_isabella.bin",
+      "repo": "asif00/Kokoro-Conversational",
+      "sha256": "fa929323ecd770631dcebcbeac55469cf102a7ad002aceac750fbad024c9f978",
+      "sizeBytes": 523264,
+      "upstreamPath": "data/voices/af_sky_emma_isabella.pt"
+    }
+  ]
+}

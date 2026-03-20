@@ -1,0 +1,36 @@
+# coding: utf-8
+
+import addonHandler
+import globalPluginHandler
+import gui
+import wx
+
+from . import service
+from .voice_manager import MaxLogicVoiceManagerDialog
+
+
+addonHandler.initTranslation()
+
+
+class GlobalPlugin(globalPluginHandler.GlobalPlugin):
+	def __init__(self, *args, **kwargs):
+		super(GlobalPlugin, self).__init__(*args, **kwargs)
+		self._menu_item = gui.mainFrame.sysTrayIcon.menu.Insert(
+			4,
+			wx.ID_ANY,
+			_("MaxLogic Kokoro &voice manager..."),
+			_("Open the voice manager to install, remove, or download MaxLogic Kokoro voices"),
+		)
+		gui.mainFrame.sysTrayIcon.menu.Bind(wx.EVT_MENU, self.on_open_manager, self._menu_item)
+
+	def on_open_manager(self, event):
+		dialog = MaxLogicVoiceManagerDialog()
+		gui.runScriptModalDialog(dialog)
+
+	def terminate(self):
+		try:
+			service.stop_preview()
+			service.close_preview_player()
+			gui.mainFrame.sysTrayIcon.menu.DestroyItem(self._menu_item)
+		except Exception:
+			pass
