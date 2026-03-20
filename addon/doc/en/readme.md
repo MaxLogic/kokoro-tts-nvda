@@ -11,6 +11,7 @@ It uses its own add-on ID and synth driver name so it can coexist with the older
 - Official voice catalog with filtering by name, gender, and language
 - Separate `Official v1.1-zh` voice catalog for the newer Kokoro ONNX release
 - Community voice catalog for curated experimental voices
+- Option to hide voices that are already available locally in the online catalogs
 - Bulk download and install of selected voices
 - Local voice install from `.bin`, `.json`, `.npy`, or `.zip`
 - Sample playback before installing a voice
@@ -77,6 +78,7 @@ Tabs:
 Available actions:
 
 - filter the online lists
+- hide voices that are already available locally
 - play a sample for the focused voice
 - select visible voices
 - clear visible selection
