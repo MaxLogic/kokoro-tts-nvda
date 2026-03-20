@@ -1,14 +1,14 @@
 import logging
 import os
 
-
-ADDON_ID = "maxlogicKokoroTTS"
+try:
+	from ._paths import ADDON_ID, get_log_dir as get_addon_log_dir
+except ImportError:
+	from _paths import ADDON_ID, get_log_dir as get_addon_log_dir
 
 
 def get_log_dir():
-	base_dir = os.path.join(os.environ.get("APPDATA", ""), "nvda", ADDON_ID, "logs")
-	os.makedirs(base_dir, exist_ok=True)
-	return base_dir
+	return get_addon_log_dir(create=True)
 
 
 def get_helper_log_path():
