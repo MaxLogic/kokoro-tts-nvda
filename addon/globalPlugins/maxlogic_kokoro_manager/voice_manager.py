@@ -48,7 +48,12 @@ def _format_voice_source(record):
 		"user": _("User-installed"),
 	}
 	source_label = source_labels.get(record.source, record.source.title())
-	return _("{name} ({source})").format(name=record.display_name, source=source_label)
+	name = record.display_name
+	metadata = record.metadata or {}
+	model_version = metadata.get("modelVersion")
+	if model_version:
+		name = _("{name} [{model}]").format(name=name, model=model_version)
+	return _("{name} ({source})").format(name=name, source=source_label)
 
 
 def _format_count_hint(visible_count, total_count, selected_count):
@@ -102,7 +107,7 @@ class InstalledVoicesPanel(wx.Panel):
 		inventory = service.list_voice_inventory()
 		self._user_voices = inventory["user"]
 		self._builtin_voices = inventory["builtin"]
-		self.voice_list.SetItems([record.display_name for record in self._user_voices])
+		self.voice_list.SetItems([_format_voice_source(record) for record in self._user_voices])
 		self.builtin_list.SetItems([_format_voice_source(record) for record in self._builtin_voices])
 		self.remove_button.Enable(bool(self._user_voices))
 		self.empty_user_hint.Show(not self._user_voices)

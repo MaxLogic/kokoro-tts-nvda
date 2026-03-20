@@ -7,6 +7,7 @@
 - local voice install/remove support for `.bin`, `.npy`, `.json`, and `.zip` voice files
 - a curated official Kokoro catalog backed by the ONNX community model index, with cached availability refresh and SHA-256 verification
 - a second official `Kokoro-82M-v1.1-zh-ONNX` catalog with its own manager tab and cache path
+- the first supported `Official v1.1-zh` rollout with `af_maple`, `af_sol`, and `bf_vale` for preview and download
 - a separate bundled community catalog scaffold for future curated experimental voices
 - a MaxLogic Kokoro Voice Manager menu entry and dialog with Installed, Official, and Community tabs
 - a `Speech Cache` manager tab with cache size, cache-mode, maintenance, and live cache statistics controls

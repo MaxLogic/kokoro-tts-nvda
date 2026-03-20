@@ -9,6 +9,7 @@ It uses its own add-on ID and synth driver name so it can coexist with the older
 - Separate NVDA synth: `MaxLogic Kokoro TTS`
 - Built-in voice manager available from the NVDA menu
 - Official voice catalog with filtering by name, gender, and language
+- Separate `Official v1.1-zh` voice catalog for the newer Kokoro ONNX release
 - Community voice catalog for curated experimental voices
 - Bulk download and install of selected voices
 - Local voice install from `.bin`, `.json`, `.npy`, or `.zip`
@@ -69,6 +70,7 @@ Tabs:
 
 - `Installed`: user-installed voices and built-in/fallback voices
 - `Official`: curated official Kokoro voices
+- `Official v1.1-zh`: curated voices from the newer `Kokoro-82M-v1.1-zh-ONNX` release
 - `Community`: curated experimental community voices
 - `Speech Cache`: cache settings, persistent cache stats, and hot cache stats
 
@@ -83,6 +85,14 @@ Available actions:
 - remove a user-installed voice
 - change cache policy for short or medium speech
 - clear or compact the cache
+
+Current `Official v1.1-zh` rollout:
+
+- `af_maple`
+- `af_sol`
+- `bf_vale`
+
+These voices are available for preview and download now as the first supported subset of the newer v1.1-zh release.
 
 ## Voice storage
 

@@ -2,8 +2,8 @@
 Next task ID: T-010
 
 ## Summary
-Open tasks: 6 (In Progress: 0, Next Today: 2, Next This Week: 4, Next Later: 0, Blocked: 0)
-Done tasks: 3
+Open tasks: 5 (In Progress: 0, Next Today: 2, Next This Week: 3, Next Later: 0, Blocked: 0)
+Done tasks: 4
 
 ## In Progress
 
@@ -50,23 +50,6 @@ Verify: cli-proof, manual
 Notes: Keep the initial local install format simple; archive support can wrap one or more `.npy` voices plus metadata.
 
 ## Next – This Week
-
-### T-008 [CLI] Roll out the low-risk v1.1-zh English subset
-Outcome:
-- the add-on makes the new English v1.1-zh voices `af_maple`, `af_sol`, and `bf_vale` available for preview and download
-- downloaded v1.1-zh English voices install through the existing user-voice pipeline and remain clearly labeled as v1.1-zh voices
-- documentation and UI text explain that this is the first supported subset of the broader v1.1-zh release
-Proof:
-- Run: `python -m py_compile addon\globalPlugins\maxlogic_kokoro_manager\*.py addon\synthDrivers\maxlogic_kokoro\*.py`
-  Expect: exit=0
-- Run: `Get-ChildItem "$env:APPDATA\nvda\maxlogicKokoroTTS\voices"`
-  Expect: after installing one of the v1.1-zh English voices, the expected user-managed voice file exists in the voice store
-- Run: `Get-Content "C:\Users\pawel\AppData\Roaming\nvda\maxlogicKokoroTTS\logs\helper.log" -Tail 120`
-  Expect: preview or synthesis with a v1.1-zh English voice logs a successful helper request for the selected voice
-Touches: addon/synthDrivers/maxlogic_kokoro/_catalog.py, addon/globalPlugins/maxlogic_kokoro_manager/, addon/doc/en/readme.md, readme.md
-Deps: T-006, T-007
-Verify: cli-proof, manual, visual
-Notes: Keep the first rollout intentionally narrow so compatibility issues are isolated before exposing the full 103-voice set.
 
 ### T-009 [CLI] Validate runtime compatibility for broader v1.1-zh adoption
 Outcome:
@@ -164,6 +147,23 @@ Touches: addon/globalPlugins/maxlogic_kokoro_manager/voice_manager.py, addon/glo
 Deps: T-006
 Verify: manual, visual
 Notes: Prefer a dedicated tab or equivalent first-class source view instead of silently merging v1.1-zh into the existing official list.
+
+### T-008 [CLI] Roll out the low-risk v1.1-zh English subset
+Outcome:
+- the add-on makes the new English v1.1-zh voices `af_maple`, `af_sol`, and `bf_vale` available for preview and download
+- downloaded v1.1-zh English voices install through the existing user-voice pipeline and remain clearly labeled as v1.1-zh voices
+- documentation and UI text explain that this is the first supported subset of the broader v1.1-zh release
+Proof:
+- Run: `python -m py_compile addon\globalPlugins\maxlogic_kokoro_manager\*.py addon\synthDrivers\maxlogic_kokoro\*.py`
+  Expect: exit=0
+- Run: `Get-ChildItem "$env:APPDATA\nvda\maxlogicKokoroTTS\voices"`
+  Expect: after installing one of the v1.1-zh English voices, the expected user-managed voice file exists in the voice store
+- Run: `Get-Content "C:\Users\pawel\AppData\Roaming\nvda\maxlogicKokoroTTS\logs\helper.log" -Tail 120`
+  Expect: preview or synthesis with a v1.1-zh English voice logs a successful helper request for the selected voice
+Touches: addon/synthDrivers/maxlogic_kokoro/_catalog.py, addon/globalPlugins/maxlogic_kokoro_manager/, addon/doc/en/readme.md, readme.md
+Deps: T-006, T-007
+Verify: cli-proof, manual, visual
+Notes: Keep the first rollout intentionally narrow so compatibility issues are isolated before exposing the broader v1.1-zh set.
 
 ### T-005 [UI] Add speech cache settings and maintenance controls
 Outcome:
