@@ -209,15 +209,17 @@ class InstalledVoicesPanel(wx.Panel):
 
 
 class CatalogVoicesPanel(wx.Panel):
-	def __init__(self, parent, on_change, catalog_name, title, empty_message, allow_refresh):
+	def __init__(self, parent, on_change, catalog_name, title, empty_message, allow_refresh, show_hide_local_toggle=False):
 		super(CatalogVoicesPanel, self).__init__(parent)
 		self._on_change = on_change
 		self._catalog_name = catalog_name
 		self._title = title
 		self._empty_message = empty_message
 		self._allow_refresh = allow_refresh
+		self._show_hide_local_toggle = show_hide_local_toggle
 		self._entries = []
 		self._visible_entries = []
+		self._installed_voice_ids = set()
 		self._checked_ids = set()
 		self._language_options = [("", _("All languages"))]
 		self._preview_in_progress = False
@@ -237,6 +239,11 @@ class CatalogVoicesPanel(wx.Panel):
 		self.language_choice.SetSelection(0)
 		filter_row.Add(self.language_choice, 0, wx.ALL, 5)
 		sizer.Add(filter_row, 0, wx.EXPAND | wx.LEFT | wx.RIGHT, 0)
+		if self._show_hide_local_toggle:
+			self.hide_installed_checkbox = wx.CheckBox(self, label=_("Hide voices already available locally"))
+			sizer.Add(self.hide_installed_checkbox, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 5)
+		else:
+			self.hide_installed_checkbox = None
 
 		self.voice_list = wx.CheckListBox(self)
 		sizer.Add(self.voice_list, 1, wx.EXPAND | wx.ALL, 5)
@@ -264,6 +271,8 @@ class CatalogVoicesPanel(wx.Panel):
 		self.Bind(wx.EVT_TEXT, lambda evt: self._apply_filters(), self.search_text)
 		self.Bind(wx.EVT_CHOICE, lambda evt: self._apply_filters(), self.gender_choice)
 		self.Bind(wx.EVT_CHOICE, lambda evt: self._apply_filters(), self.language_choice)
+		if self.hide_installed_checkbox is not None:
+			self.Bind(wx.EVT_CHECKBOX, lambda evt: self._apply_filters(), self.hide_installed_checkbox)
 		self.Bind(wx.EVT_LISTBOX, lambda evt: self._update_action_state(), self.voice_list)
 		self.Bind(wx.EVT_CHECKLISTBOX, self.on_toggle_entry, self.voice_list)
 		self.Bind(wx.EVT_BUTTON, lambda evt: self.on_select_visible(), self.select_button)
@@ -331,6 +340,9 @@ class CatalogVoicesPanel(wx.Panel):
 			catalog_name=self._catalog_name,
 			force_refresh=force_refresh,
 		)
+		inventory = service.list_voice_inventory()
+		self._installed_voice_ids = {record.voice_id for record in inventory["user"]}
+		self._installed_voice_ids.update(record.voice_id for record in inventory["builtin"])
 		self._entries = sorted(self._entries, key=lambda entry: entry.get("displayName", entry["id"]).lower())
 		self._checked_ids.intersection_update({entry["id"] for entry in self._entries})
 		self._update_language_choices()
@@ -344,10 +356,13 @@ class CatalogVoicesPanel(wx.Panel):
 		search_text = self.search_text.GetValue().strip().lower()
 		gender_key = self._selected_gender_key()
 		language_key = self._selected_language_key()
+		hide_installed = self.hide_installed_checkbox is not None and self.hide_installed_checkbox.GetValue()
 		visible_entries = []
 		for entry in self._entries:
 			name = entry.get("displayName", entry["id"]).lower()
 			if search_text and search_text not in name and search_text not in entry["id"].lower():
+				continue
+			if hide_installed and entry["id"] in self._installed_voice_ids:
 				continue
 			if gender_key != "all" and entry.get("gender", "unknown") != gender_key:
 				continue
@@ -794,6 +809,7 @@ class MaxLogicVoiceManagerDialog(wx.Dialog):
 			title=_("Official Kokoro voices"),
 			empty_message=_("No official voices are available in the current catalog."),
 			allow_refresh=True,
+			show_hide_local_toggle=True,
 		)
 		self.official_v11zh_panel = CatalogVoicesPanel(
 			self.notebook,
@@ -802,6 +818,7 @@ class MaxLogicVoiceManagerDialog(wx.Dialog):
 			title=_("Official Kokoro v1.1-zh voices"),
 			empty_message=_("No official v1.1-zh voices are available in the current catalog."),
 			allow_refresh=True,
+			show_hide_local_toggle=True,
 		)
 		self.community_panel = CatalogVoicesPanel(
 			self.notebook,
@@ -810,6 +827,7 @@ class MaxLogicVoiceManagerDialog(wx.Dialog):
 			title=_("Community and experimental voices"),
 			empty_message=_("No curated community voices are listed yet."),
 			allow_refresh=False,
+			show_hide_local_toggle=True,
 		)
 		self.cache_panel = SpeechCachePanel(self.notebook)
 		self.notebook.AddPage(self.installed_panel, _("Installed"))

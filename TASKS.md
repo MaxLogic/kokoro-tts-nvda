@@ -1,8 +1,8 @@
 # Tasks
-Next task ID: T-011
+Next task ID: T-010
 
 ## Summary
-Open tasks: 5 (In Progress: 0, Next Today: 2, Next This Week: 2, Next Later: 1, Blocked: 0)
+Open tasks: 4 (In Progress: 0, Next Today: 2, Next This Week: 2, Next Later: 0, Blocked: 0)
 Done tasks: 5
 
 ## In Progress
@@ -95,22 +95,6 @@ Verify: manual, visual
 Notes: Model the UI structure after Sonata’s voice manager, but keep the Kokoro workflow smaller and focused on voice embeddings.
 
 ## Next – Later
-
-### T-010 [CLI] Add Chinese phonemizer support for v1.1-zh `zf_*` voices
-Outcome:
-- the packaged phonemizer/runtime path produces usable tokens for representative Chinese text when using a `zf_*` v1.1-zh voice
-- the voice manager can safely expose the broader `zf_*` set only after preview/download/install proof succeeds on the current helper/runtime path
-- user-facing docs explain the resulting Chinese voice support level without relying on manual caveats
-Proof:
-- Run: `python -m py_compile addon\synthDrivers\maxlogic_kokoro\_phonemizer.py addon\synthDrivers\maxlogic_kokoro\_engine.py addon\synthDrivers\maxlogic_kokoro\_helper_process.py`
-  Expect: exit=0
-- Run: `Get-Content "C:\Users\pawel\AppData\Roaming\nvda\maxlogicKokoroTTS\logs\helper.log" -Tail 150`
-  Expect: helper log shows a representative `zf_*` preview or synthesis request succeeding for Chinese text instead of failing with `Phonemizer produced no usable tokens`
-- Run: `Get-Content CHANGELOG.md`
-  Expect: changelog records whether the broader `zf_*` set is now enabled and what phonemizer/runtime path made it possible
-Touches: addon/synthDrivers/maxlogic_kokoro/_phonemizer.py, addon/synthDrivers/maxlogic_kokoro/_engine.py, addon/synthDrivers/maxlogic_kokoro/_helper_process.py, addon/globalPlugins/maxlogic_kokoro_manager/sample_texts.json, CHANGELOG.md
-Verify: cli-proof, manual
-Notes: Follow-up from T-009. Current validation shows the packaged phonemizer path returns no usable tokens for representative Chinese text, so the broader `zf_*` rollout remains deferred.
 
 ## Blocked
 

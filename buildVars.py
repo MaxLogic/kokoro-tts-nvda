@@ -9,7 +9,7 @@ addon_info = {
 	"addon_name": "maxlogicKokoroTTS",
 	"addon_summary": _("MaxLogic Kokoro TTS"),
 	"addon_description": _("""A conflict-free Kokoro TTS synthesizer for NVDA maintained by MaxLogic."""),
-	"addon_version": "0.1.0",
+	"addon_version": "0.1.1",
 	"addon_author": "MaxLogic",
 	"addon_url": "https://github.com/MaxLogic/kokoro-tts-nvda",
 	"addon_sourceURL": "https://github.com/MaxLogic/kokoro-tts-nvda",
