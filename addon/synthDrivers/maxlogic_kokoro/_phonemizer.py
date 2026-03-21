@@ -49,10 +49,15 @@ class EspeakPhonemizer(object):
 				self.data_path,
 				"-v",
 				language,
+				"--",
 				text,
 			],
 			capture_output=True,
 			check=True,
 			creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
 		)
-		return result.stdout.decode("utf-8", errors="replace").strip()
+		stdout = result.stdout.decode("utf-8", errors="replace").strip()
+		stderr = result.stderr.decode("utf-8", errors="replace").strip()
+		if not stdout and stderr:
+			raise RuntimeError("eSpeak-NG phonemizer returned no phonemes: %s" % stderr)
+		return stdout
