@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Compatibility
+- tested with NVDA 2026.1 and updated add-on compatibility metadata
+
 ### Added
 - user-managed voice storage under `%APPDATA%\nvda\maxlogicKokoroTTS\voices` with merged discovery ahead of bundled and reference voices
 - local voice install/remove support for `.bin`, `.npy`, `.json`, and `.zip` voice files
