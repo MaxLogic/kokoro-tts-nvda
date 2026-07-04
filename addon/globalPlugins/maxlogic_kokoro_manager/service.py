@@ -45,8 +45,8 @@ from synthDrivers.maxlogic_kokoro._cache_settings import (
 	resolve_cache_policy,
 	save_cache_settings,
 )
-from synthDrivers.maxlogic_kokoro._engine import DEFAULT_REFERENCE_ROOT, KokoroEngine
 from synthDrivers.maxlogic_kokoro._helper_client import HelperEngineClient
+from synthDrivers.maxlogic_kokoro._phonemizer import DEFAULT_REFERENCE_ROOT
 from synthDrivers.maxlogic_kokoro._voice_store import (
 	DuplicateVoiceError,
 	VoiceStoreError,
@@ -77,6 +77,12 @@ def list_installed_user_voices():
 
 def _package_root():
 	return _SYNTH_ROOT
+
+
+def _create_kokoro_engine():
+	from synthDrivers.maxlogic_kokoro._engine import KokoroEngine
+
+	return KokoroEngine(_package_root())
 
 
 def _sample_text_path():
@@ -354,7 +360,7 @@ def play_catalog_voice_sample(entry, on_complete=None):
 				helper = HelperEngineClient(_package_root(), log)
 			except Exception as helper_error:
 				log.warning("MaxLogic Kokoro preview helper unavailable, using in-process preview: %s", helper_error)
-				engine = KokoroEngine(_package_root())
+				engine = _create_kokoro_engine()
 				try:
 					audio = engine.synthesize_preview_to_int16(
 						sample_text,
